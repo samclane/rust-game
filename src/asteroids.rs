@@ -32,9 +32,8 @@ impl Plugin for AsteroidPlugin {
         .add_systems(
             Update,
             (
-                spawn_asteroids,
-                handle_asteroid_collisions,
-                rotate_asteroids,
+                (spawn_asteroids, rotate_asteroids)
+                    .in_set(crate::schedule::InGameSet::EntityUpdates),
             ),
         );
     }
@@ -82,21 +81,5 @@ fn spawn_asteroids(
 fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
     for mut transform in query.iter_mut() {
         transform.rotate(Quat::from_rotation_y(ROTATION_SPEED * time.delta_seconds()));
-    }
-}
-
-fn handle_asteroid_collisions(
-    mut commands: Commands,
-    query: Query<(Entity, &Collider), With<Asteroid>>,
-) {
-    for (entity, collider) in query.iter() {
-        for &collided_entity in &collider.colliding_entities {
-            // Asteroids should not collide with other asteroids
-            if query.get(collided_entity).is_ok() {
-                continue;
-            }
-            // Despawn the asteroid.
-            commands.entity(entity).despawn_recursive();
-        }
     }
 }
