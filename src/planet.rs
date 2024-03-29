@@ -7,7 +7,8 @@ use crate::{
     asset_loader::SceneAssets,
     collision_detection::{Collider, CollisionDamage},
     health::Health,
-    movement::StaticObjectBundle,
+    movement::{Acceleration, StaticObjectBundle},
+    schedule::InGameSet,
     state::GameState,
 };
 
@@ -26,7 +27,11 @@ pub struct PlanetPlugin;
 impl Plugin for PlanetPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PostStartup, spawn_planets)
-            .add_systems(OnEnter(GameState::GameOver), spawn_planets);
+            .add_systems(OnEnter(GameState::GameOver), spawn_planets)
+            .add_systems(
+                Update,
+                (attract_objects_to_planets).in_set(InGameSet::EntityUpdates),
+            );
     }
 }
 
@@ -51,5 +56,19 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             CollisionDamage::new(PLANET_COLLISION_DAMAGE),
             Health::new(HEALTH),
         ));
+    }
+}
+
+fn attract_objects_to_planets(
+    query: Query<&Transform, With<Planet>>,
+    mut moving_query: Query<(&mut Acceleration, &Transform), Without<Planet>>,
+) {
+    for planet_transform in query.iter() {
+        for (mut acceleration, transform) in moving_query.iter_mut() {
+            let direction = planet_transform.translation - transform.translation;
+            let distance = direction.length();
+            let force = 1.0 / distance.powi(2);
+            acceleration.value += direction.normalize() * force;
+        }
     }
 }
