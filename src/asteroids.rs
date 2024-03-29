@@ -35,10 +35,7 @@ impl Plugin for AsteroidPlugin {
         })
         .add_systems(
             Update,
-            (
-                (spawn_asteroids, rotate_asteroids)
-                    .in_set(InGameSet::EntityUpdates),
-            ),
+            ((spawn_asteroids, rotate_asteroids).in_set(InGameSet::EntityUpdates),),
         );
     }
 }

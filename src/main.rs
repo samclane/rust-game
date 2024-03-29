@@ -6,6 +6,7 @@ mod debug;
 mod despawn;
 mod health;
 mod movement;
+mod planet;
 mod schedule;
 mod spaceship;
 mod state;
@@ -18,6 +19,7 @@ use collision_detection::CollisionDetectionPlugin;
 // use debug::DebugPlugin;
 use despawn::DespawnPlugin;
 use movement::MovementPlugin;
+use planet::PlanetPlugin;
 use schedule::SchedulePlugin;
 use spaceship::SpaceshipPlugin;
 use state::StatePlugin;
@@ -41,6 +43,7 @@ fn main() {
         .add_plugins(DespawnPlugin)
         .add_plugins(SchedulePlugin)
         .add_plugins(StatePlugin)
+        .add_plugins(PlanetPlugin)
         // .add_plugins(DebugPlugin)
         .run();
 }

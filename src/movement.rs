@@ -32,6 +32,12 @@ pub struct MovingObjectBundle {
     pub collider: Collider,
 }
 
+#[derive(Bundle)]
+pub struct StaticObjectBundle {
+    pub model: SceneBundle,
+    pub collider: Collider,
+}
+
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
