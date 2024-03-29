@@ -38,5 +38,4 @@ fn pan_camera_to_spaceship(
         return;
     };
     camera_transform.translation = spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
-    camera_transform.look_at(spaceship_transform.translation, Vec3::Z);
 }

@@ -10,7 +10,7 @@ use crate::schedule::InGameSet;
 use crate::state::GameState;
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0.0, 0.0, -20.0);
-const SPACESHIP_SPEED: f32 = 25.0;
+const SPACESHIP_SPEED: f32 = 1.0;
 const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
 const SPACESHIP_HEALTH: f32 = 100.0;
@@ -111,7 +111,7 @@ fn spaceship_movement_controls(
     transform.rotate_local_z(roll);
 
     // Update the spaceship's velocity based on the new direction
-    velocity.value = -transform.forward() * movement; // Negate the forward vector to move in the direction the spaceship is facing
+    velocity.value += -transform.forward() * movement; // Negate the forward vector to move in the direction the spaceship is facing
 }
 
 fn spaceship_weapon_controls(
