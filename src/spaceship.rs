@@ -168,3 +168,4 @@ fn spaceship_destroyed(
         next_state.set(GameState::GameOver);
     }
 }
+
