@@ -19,6 +19,7 @@ const MISSILE_SPEED: f32 = 50.0;
 const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.;
 const MISSILE_HEALTH: f32 = 1.0;
 const MISSILE_COLLISION_DAMAGE: f32 = 5.0;
+const MISSILE_FIRE_RATE: f32 = 0.5;
 
 #[derive(Component, Debug)]
 pub struct Spaceship;
@@ -30,6 +31,11 @@ pub struct SpaceShipShield;
 pub struct SpaceshipMissile;
 
 pub struct SpaceshipPlugin;
+
+#[derive(Component, Debug)]
+pub struct SpaceshipMissileFireRate {
+    pub timer: Timer,
+}
 
 impl Plugin for SpaceshipPlugin {
     fn build(&self, app: &mut App) {
@@ -64,6 +70,9 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         Spaceship,
         Health::new(SPACESHIP_HEALTH),
         CollisionDamage::new(SPACESHIP_COLLISION_DAMAGE),
+        SpaceshipMissileFireRate {
+            timer: Timer::from_seconds(MISSILE_FIRE_RATE, TimerMode::Once),
+        },
     ));
 }
 
@@ -107,14 +116,16 @@ fn spaceship_movement_controls(
 
 fn spaceship_weapon_controls(
     mut commands: Commands,
-    query: Query<&Transform, With<Spaceship>>,
+    mut query: Query<(&Transform, &mut SpaceshipMissileFireRate), With<Spaceship>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     scene_assets: Res<SceneAssets>,
+    time: Res<Time>,
 ) {
-    let Ok(transform) = query.get_single() else {
+    let Ok((transform, mut fire_rate)) = query.get_single_mut() else {
         return;
     };
-    if keyboard_input.pressed(KeyCode::Space) {
+    fire_rate.timer.tick(time.delta());
+    if keyboard_input.pressed(KeyCode::Space) && fire_rate.timer.finished() {
         commands.spawn((
             MovingObjectBundle {
                 velocity: Velocity::new(-transform.forward() * MISSILE_SPEED),
@@ -132,6 +143,7 @@ fn spaceship_weapon_controls(
             Health::new(MISSILE_HEALTH),
             CollisionDamage::new(MISSILE_COLLISION_DAMAGE),
         ));
+        fire_rate.timer.reset();
     }
 }
 
