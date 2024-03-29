@@ -4,7 +4,6 @@ mod camera;
 mod collision_detection;
 mod debug;
 mod despawn;
-mod gravity;
 mod health;
 mod movement;
 mod schedule;
@@ -18,7 +17,6 @@ use camera::CameraPlugin;
 use collision_detection::CollisionDetectionPlugin;
 // use debug::DebugPlugin;
 use despawn::DespawnPlugin;
-use gravity::GravityPlugin;
 use movement::MovementPlugin;
 use schedule::SchedulePlugin;
 use spaceship::SpaceshipPlugin;
@@ -43,7 +41,6 @@ fn main() {
         .add_plugins(DespawnPlugin)
         .add_plugins(SchedulePlugin)
         .add_plugins(StatePlugin)
-        .add_plugins(GravityPlugin)
         // .add_plugins(DebugPlugin)
         .run();
 }

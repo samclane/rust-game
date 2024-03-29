@@ -7,6 +7,7 @@ use crate::asset_loader::SceneAssets;
 use crate::collision_detection::{Collider, CollisionDamage};
 use crate::health::Health;
 use crate::movement::{Acceleration, MovingObjectBundle, Velocity};
+use crate::schedule::InGameSet;
 
 const VELOCITY_SCALAR: f32 = 5.0;
 const ACCELERATION_SCALAR: f32 = 1.0;
@@ -36,7 +37,7 @@ impl Plugin for AsteroidPlugin {
             Update,
             (
                 (spawn_asteroids, rotate_asteroids)
-                    .in_set(crate::schedule::InGameSet::EntityUpdates),
+                    .in_set(InGameSet::EntityUpdates),
             ),
         );
     }
