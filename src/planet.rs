@@ -13,11 +13,11 @@ use crate::{
 };
 
 const NUM_PLANETS: usize = 3;
-const PLANET_RADIUS: f32 = 1.0;
 const PLANET_COLLISION_DAMAGE: f32 = 10.0;
 const PLANET_RANGE_MASS: Range<f32> = 100.0..1000.0;
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
 const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
+const PLANET_RANGE_SCALE: Range<f32> = 0.5..1.5;
 const HEALTH: f32 = 1000.0;
 
 #[derive(Component, Debug)]
@@ -44,15 +44,17 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             0.0,
             rng.gen_range(SPAWN_RANGE_Z),
         );
+        let transform = Transform::from_translation(translation)
+            .with_scale(Vec3::splat(rng.gen_range(PLANET_RANGE_SCALE)));
         commands.spawn((
             StaticObjectBundle {
                 mass: Mass::new(rng.gen_range(PLANET_RANGE_MASS)),
                 model: SceneBundle {
                     scene: scene_assets.planets.clone(),
-                    transform: Transform::from_translation(translation),
+                    transform: transform,
                     ..Default::default()
                 },
-                collider: Collider::new(PLANET_RADIUS),
+                collider: Collider::new(transform.scale.x * 0.5),
             },
             Planet,
             CollisionDamage::new(PLANET_COLLISION_DAMAGE),
