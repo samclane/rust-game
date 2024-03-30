@@ -5,10 +5,12 @@ mod collision_detection;
 mod debug;
 mod despawn;
 mod health;
+mod menus;
 mod movement;
 mod planet;
 mod schedule;
 mod spaceship;
+mod splash;
 mod state;
 
 use asset_loader::AssetLoaderPlugin;
@@ -18,10 +20,12 @@ use camera::CameraPlugin;
 use collision_detection::CollisionDetectionPlugin;
 // use debug::DebugPlugin;
 use despawn::DespawnPlugin;
+use menus::MenusPlugin;
 use movement::MovementPlugin;
 use planet::PlanetPlugin;
 use schedule::SchedulePlugin;
 use spaceship::SpaceshipPlugin;
+use splash::SplashPlugin;
 use state::StatePlugin;
 
 fn main() {
@@ -44,6 +48,8 @@ fn main() {
         .add_plugins(DespawnPlugin)
         .add_plugins(SchedulePlugin)
         .add_plugins(StatePlugin)
+        .add_plugins(MenusPlugin)
+        .add_plugins(SplashPlugin)
         // .add_plugins(DebugPlugin)
         .run();
 }
