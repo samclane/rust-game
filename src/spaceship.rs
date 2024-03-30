@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use crate::asset_loader::SceneAssets;
 use crate::collision_detection::{Collider, CollisionDamage};
 use crate::health::Health;
-use crate::movement::{Acceleration, MovingObjectBundle, Velocity};
+use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 
@@ -15,11 +15,15 @@ const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
 const SPACESHIP_HEALTH: f32 = 100.0;
 const SPACESHIP_COLLISION_DAMAGE: f32 = 100.0;
+const SPACESHIP_RADIUS: f32 = 1.0;
+const SPACESHIP_MASS: f32 = 1.0;
 const MISSILE_SPEED: f32 = 50.0;
 const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.;
 const MISSILE_HEALTH: f32 = 1.0;
 const MISSILE_COLLISION_DAMAGE: f32 = 5.0;
 const MISSILE_FIRE_RATE: f32 = 0.5;
+const MISSILE_MASS: f32 = 1.0;
+const MISSILE_RADIUS: f32 = 1.0;
 
 #[derive(Component, Debug)]
 pub struct Spaceship;
@@ -58,9 +62,10 @@ impl Plugin for SpaceshipPlugin {
 fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     commands.spawn((
         MovingObjectBundle {
+            mass: Mass::new(SPACESHIP_MASS),
             velocity: Velocity::new(Vec3::ZERO),
             acceleration: Acceleration::new(Vec3::ZERO),
-            collider: Collider::new(1.0),
+            collider: Collider::new(SPACESHIP_RADIUS),
             model: SceneBundle {
                 scene: scene_assets.spaceship.clone(),
                 transform: Transform::from_translation(STARTING_TRANSLATION),
@@ -128,9 +133,10 @@ fn spaceship_weapon_controls(
     if keyboard_input.pressed(KeyCode::Space) && fire_rate.timer.finished() {
         commands.spawn((
             MovingObjectBundle {
+                mass: Mass::new(MISSILE_MASS),
                 velocity: Velocity::new(-transform.forward() * MISSILE_SPEED),
                 acceleration: Acceleration::new(Vec3::ZERO),
-                collider: Collider::new(1.0),
+                collider: Collider::new(MISSILE_RADIUS),
                 model: SceneBundle {
                     scene: scene_assets.missiles.clone(),
                     transform: Transform::from_translation(
@@ -168,4 +174,3 @@ fn spaceship_destroyed(
         next_state.set(GameState::GameOver);
     }
 }
-

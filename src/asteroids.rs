@@ -6,9 +6,10 @@ use rand::Rng;
 use crate::asset_loader::SceneAssets;
 use crate::collision_detection::{Collider, CollisionDamage};
 use crate::health::Health;
-use crate::movement::{Acceleration, MovingObjectBundle, Velocity};
+use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
 
+const MASS_SCALAR: f32 = 1.0;
 const VELOCITY_SCALAR: f32 = 5.0;
 const ACCELERATION_SCALAR: f32 = 1.0;
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
@@ -66,6 +67,7 @@ fn spawn_asteroids(
 
     commands.spawn((
         MovingObjectBundle {
+            mass: Mass::new(MASS_SCALAR),
             velocity: Velocity::new(velocity),
             acceleration: Acceleration::new(acceleration),
             collider: Collider::new(1.0),

@@ -3,6 +3,17 @@ use bevy::prelude::*;
 use crate::{collision_detection::Collider, schedule::InGameSet};
 
 #[derive(Component, Debug)]
+pub struct Mass {
+    pub value: f32,
+}
+
+impl Mass {
+    pub fn new(value: f32) -> Self {
+        Self { value }
+    }
+}
+
+#[derive(Component, Debug)]
 pub struct Velocity {
     pub value: Vec3,
 }
@@ -26,6 +37,7 @@ impl Acceleration {
 
 #[derive(Bundle)]
 pub struct MovingObjectBundle {
+    pub mass: Mass,
     pub velocity: Velocity,
     pub acceleration: Acceleration,
     pub model: SceneBundle,
@@ -34,6 +46,7 @@ pub struct MovingObjectBundle {
 
 #[derive(Bundle)]
 pub struct StaticObjectBundle {
+    pub mass: Mass,
     pub model: SceneBundle,
     pub collider: Collider,
 }

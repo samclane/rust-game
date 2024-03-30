@@ -12,7 +12,7 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_camera)
-        .add_systems(Update, pan_camera_to_spaceship);
+            .add_systems(Update, pan_camera_to_spaceship);
     }
 }
 
@@ -37,5 +37,6 @@ fn pan_camera_to_spaceship(
     let Ok(mut camera_transform) = camera_query.get_single_mut() else {
         return;
     };
-    camera_transform.translation = spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
+    camera_transform.translation =
+        spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
 }

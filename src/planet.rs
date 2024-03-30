@@ -7,7 +7,7 @@ use crate::{
     asset_loader::SceneAssets,
     collision_detection::{Collider, CollisionDamage},
     health::Health,
-    movement::{Acceleration, StaticObjectBundle},
+    movement::{Acceleration, Mass, StaticObjectBundle},
     schedule::InGameSet,
     state::GameState,
 };
@@ -15,6 +15,7 @@ use crate::{
 const NUM_PLANETS: usize = 3;
 const PLANET_RADIUS: f32 = 1.0;
 const PLANET_COLLISION_DAMAGE: f32 = 10.0;
+const PLANET_RANGE_MASS: Range<f32> = 100.0..1000.0;
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
 const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
 const HEALTH: f32 = 1000.0;
@@ -45,6 +46,7 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         );
         commands.spawn((
             StaticObjectBundle {
+                mass: Mass::new(rng.gen_range(PLANET_RANGE_MASS)),
                 model: SceneBundle {
                     scene: scene_assets.planets.clone(),
                     transform: Transform::from_translation(translation),
