@@ -1,8 +1,13 @@
+use std::ops::Range;
+
 use bevy::prelude::*;
 
 use rand::Rng;
 
 const STAR_COUNT: usize = 100;
+const STAR_SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
+const STAR_SPAWN_RANGE_Y: Range<f32> = -25.0..25.0;
+const STAR_SPAWN_RANGE_Z: Range<f32> = -25.0..25.0;
 
 pub struct StarsPlugin;
 
@@ -18,16 +23,16 @@ fn spawn_stars(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let mut rng = rand::thread_rng();
-    let mesh = meshes.add(Sphere::default());
+    let mesh = meshes.add(Sphere::new(0.1));
     let material = materials.add(StandardMaterial {
-        emissive: Color::WHITE,
+        emissive: Color::rgb_linear(230000.0, 90000.0, 30000.0),
         ..Default::default()
     });
     for _ in 0..STAR_COUNT {
         let translation = Vec3::new(
-            rng.gen_range(-25.0..25.0),
-            rng.gen_range(-25.0..25.0),
-            rng.gen_range(-25.0..25.0),
+            rng.gen_range(STAR_SPAWN_RANGE_X),
+            rng.gen_range(STAR_SPAWN_RANGE_Y),
+            rng.gen_range(STAR_SPAWN_RANGE_Z),
         );
         let transform = Transform::from_translation(translation);
         commands.spawn((PbrBundle {
