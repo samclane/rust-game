@@ -11,6 +11,7 @@ mod planet;
 mod schedule;
 mod spaceship;
 mod splash;
+mod stars;
 mod state;
 
 use asset_loader::AssetLoaderPlugin;
@@ -26,6 +27,7 @@ use planet::PlanetPlugin;
 use schedule::SchedulePlugin;
 use spaceship::SpaceshipPlugin;
 use splash::SplashPlugin;
+use stars::StarsPlugin;
 use state::StatePlugin;
 
 fn main() {
@@ -51,5 +53,6 @@ fn main() {
         .add_plugins(MenusPlugin)
         .add_plugins(SplashPlugin)
         .add_plugins(DebugPlugin)
+        .add_plugins(StarsPlugin)
         .run();
 }
