@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 use crate::schedule::InGameSet;
 
+#[derive(Component, Debug)]
+pub struct DebugEntity;
+
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
@@ -10,7 +13,7 @@ impl Plugin for DebugPlugin {
     }
 }
 
-fn print_positions(query: Query<(Entity, &Transform)>) {
+fn print_positions(query: Query<(Entity, &Transform), With<DebugEntity>>) {
     for (entity, transform) in query.iter() {
         info!("Entity {:?} is at {:?}", entity, transform.translation);
     }

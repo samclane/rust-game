@@ -18,7 +18,7 @@ use asteroids::AsteroidPlugin;
 use bevy::prelude::*;
 use camera::CameraPlugin;
 use collision_detection::CollisionDetectionPlugin;
-// use debug::DebugPlugin;
+use debug::DebugPlugin;
 use despawn::DespawnPlugin;
 use menus::MenusPlugin;
 use movement::MovementPlugin;
@@ -50,6 +50,6 @@ fn main() {
         .add_plugins(StatePlugin)
         .add_plugins(MenusPlugin)
         .add_plugins(SplashPlugin)
-        // .add_plugins(DebugPlugin)
+        .add_plugins(DebugPlugin)
         .run();
 }
