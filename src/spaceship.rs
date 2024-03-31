@@ -4,13 +4,14 @@ use bevy::prelude::*;
 
 use crate::asset_loader::SceneAssets;
 use crate::collision_detection::{Collider, CollisionDamage};
+use crate::debug::DebugEntity;
 use crate::health::Health;
 use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0.0, 0.0, -20.0);
-const SPACESHIP_SPEED: f32 = 1.0;
+const SPACESHIP_SPEED: f32 = 0.25;
 const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
 const SPACESHIP_HEALTH: f32 = 100.0;
@@ -78,6 +79,7 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         SpaceshipMissileFireRate {
             timer: Timer::from_seconds(MISSILE_FIRE_RATE, TimerMode::Once),
         },
+        DebugEntity,
     ));
 }
 

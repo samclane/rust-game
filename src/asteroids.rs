@@ -5,6 +5,7 @@ use rand::Rng;
 
 use crate::asset_loader::SceneAssets;
 use crate::collision_detection::{Collider, CollisionDamage};
+use crate::debug::DebugEntity;
 use crate::health::Health;
 use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
@@ -80,6 +81,7 @@ fn spawn_asteroids(
         Asteroid,
         Health::new(HEALTH),
         CollisionDamage::new(COLLISION_DAMAGE),
+        DebugEntity,
     ));
 }
 
