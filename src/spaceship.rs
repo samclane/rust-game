@@ -11,6 +11,7 @@ use crate::schedule::InGameSet;
 use crate::state::GameState;
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0.0, 0.0, -20.0);
+const SPACESHIP_SCALE: Vec3 = Vec3::splat(0.5);
 const SPACESHIP_SPEED: f32 = 0.25;
 const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
@@ -69,7 +70,8 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             collider: Collider::new(SPACESHIP_RADIUS),
             model: SceneBundle {
                 scene: scene_assets.spaceship.clone(),
-                transform: Transform::from_translation(STARTING_TRANSLATION),
+                transform: Transform::from_translation(STARTING_TRANSLATION)
+                    .with_scale(SPACESHIP_SCALE),
                 ..default()
             },
         },

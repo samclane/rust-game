@@ -10,7 +10,7 @@ use crate::health::Health;
 use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
 
-const MASS_SCALAR: f32 = 1.0;
+const MASS_SCALAR: f32 = 3.0;
 const VELOCITY_SCALAR: f32 = 5.0;
 const ACCELERATION_SCALAR: f32 = 1.0;
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
@@ -19,6 +19,7 @@ const SPAWN_TIME_SECONDS: f32 = 1.0;
 const ROTATION_SPEED: f32 = 2.5;
 const HEALTH: f32 = 80.0;
 const COLLISION_DAMAGE: f32 = 35.0;
+const SCALE: Vec3 = Vec3::splat(1.);
 
 #[derive(Component, Debug)]
 pub struct Asteroid;
@@ -74,7 +75,7 @@ fn spawn_asteroids(
             collider: Collider::new(1.0),
             model: SceneBundle {
                 scene: scene_assets.asteroids.clone(),
-                transform: Transform::from_translation(translation),
+                transform: Transform::from_translation(translation).with_scale(SCALE),
                 ..default()
             },
         },

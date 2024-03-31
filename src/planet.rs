@@ -14,11 +14,12 @@ use crate::{
 
 const NUM_PLANETS: usize = 3;
 const PLANET_COLLISION_DAMAGE: f32 = 10.0;
-const PLANET_RANGE_MASS: Range<f32> = 100.0..1000.0;
+const PLANET_RANGE_MASS: Range<f32> = 1.0..10.0;
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
 const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
 const PLANET_RANGE_SCALE: Range<f32> = 0.5..1.5;
 const HEALTH: f32 = 1000.0;
+const ROTATION_SPEED: f32 = 1.5;
 
 #[derive(Component, Debug)]
 pub struct Planet;
@@ -31,7 +32,7 @@ impl Plugin for PlanetPlugin {
             .add_systems(OnEnter(GameState::GameOver), spawn_planets)
             .add_systems(
                 Update,
-                (attract_objects_to_planets).in_set(InGameSet::EntityUpdates),
+                (attract_objects_to_planets, rotate_planets).in_set(InGameSet::EntityUpdates),
             );
     }
 }
@@ -64,15 +65,21 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
 }
 
 fn attract_objects_to_planets(
-    query: Query<&Transform, With<Planet>>,
-    mut moving_query: Query<(&mut Acceleration, &Transform), Without<Planet>>,
+    query: Query<(&Transform, &Mass), With<Planet>>,
+    mut moving_query: Query<(&mut Acceleration, &Transform, &Mass), Without<Planet>>,
 ) {
-    for planet_transform in query.iter() {
-        for (mut acceleration, transform) in moving_query.iter_mut() {
+    for (planet_transform, planet_mass) in query.iter() {
+        for (mut acceleration, transform, mass) in moving_query.iter_mut() {
             let direction = planet_transform.translation - transform.translation;
             let distance = direction.length();
-            let force = 1.0 / distance.powi(2);
+            let force = (planet_mass.value * mass.value) / distance.powi(2);
             acceleration.value += direction.normalize() * force;
         }
+    }
+}
+
+fn rotate_planets(mut query: Query<&mut Transform, With<Planet>>, time: Res<Time>) {
+    for mut transform in query.iter_mut() {
+        transform.rotate(Quat::from_rotation_y(ROTATION_SPEED * time.delta_seconds()));
     }
 }
