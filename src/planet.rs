@@ -6,6 +6,7 @@ use rand::Rng;
 use crate::{
     asset_loader::SceneAssets,
     collision_detection::{Collider, CollisionDamage},
+    debug::DebugEntity,
     health::Health,
     movement::{Acceleration, Mass, StaticObjectBundle},
     schedule::InGameSet,
@@ -60,6 +61,7 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             Planet,
             CollisionDamage::new(PLANET_COLLISION_DAMAGE),
             Health::new(HEALTH),
+            DebugEntity,
         ));
     }
 }
