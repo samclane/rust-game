@@ -22,6 +22,7 @@ fn spawn_stars(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    // Should be a light source but I was playing with materials
     let mut rng = rand::thread_rng();
     let mesh = meshes.add(Sphere::new(0.1));
     let material = materials.add(StandardMaterial {

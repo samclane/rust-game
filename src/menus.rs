@@ -175,6 +175,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     justify_content: JustifyContent::Center,
                     ..default()
                 },
+                background_color: Color::CRIMSON.into(),
                 ..default()
             },
             OnMainMenuScreen,
@@ -187,7 +188,6 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {

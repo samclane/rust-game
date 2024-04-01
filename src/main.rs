@@ -30,6 +30,9 @@ use splash::SplashPlugin;
 use stars::StarsPlugin;
 use state::StatePlugin;
 
+const WW: u32 = 1000;
+const WH: u32 = 800;
+
 fn main() {
     App::new()
         //Bevy built-ins
@@ -38,7 +41,15 @@ fn main() {
             color: Color::default(),
             brightness: 1000., // Hack to make the light brighter
         })
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "jumpy".to_string(),
+                resolution: (WW as f32, WH as f32).into(),
+                mode: bevy::window::WindowMode::Windowed,
+                ..default()
+            }),
+            ..default()
+        }))
         // User configured plugins
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(MovementPlugin)

@@ -27,7 +27,7 @@ struct OnSplashScreen;
 struct SplashTimer(Timer);
 
 fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let icon = asset_server.load("icon.png");
+    let icon = asset_server.load("logo_white.png");
     // Display the logo
     commands
         .spawn((
@@ -39,6 +39,7 @@ fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     height: Val::Percent(100.0),
                     ..default()
                 },
+                background_color: Color::BLACK.into(),
                 ..default()
             },
             OnSplashScreen,
