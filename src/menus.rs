@@ -305,6 +305,7 @@ fn settings_menu_setup(mut commands: Commands) {
                     justify_content: JustifyContent::Center,
                     ..default()
                 },
+                background_color: Color::CRIMSON.into(),
                 ..default()
             },
             OnSettingsMenuScreen,

@@ -6,6 +6,7 @@ use bevy::{
 use crate::spaceship::Spaceship;
 
 const CAMERA_DISTANCE: f32 = 120.0;
+const CAMERA_LERP_SPEED: f32 = 9.81; // for fun
 
 #[derive(Component)]
 pub struct MainCamera;
@@ -39,6 +40,7 @@ fn spawn_camera(mut commands: Commands) {
 fn pan_camera_to_spaceship(
     query: Query<&Transform, With<Spaceship>>,
     mut camera_query: Query<&mut Transform, (With<Camera>, Without<Spaceship>)>,
+    time: Res<Time>,
 ) {
     let Ok(spaceship_transform) = query.get_single() else {
         return;
@@ -46,6 +48,10 @@ fn pan_camera_to_spaceship(
     let Ok(mut camera_transform) = camera_query.get_single_mut() else {
         return;
     };
-    camera_transform.translation =
-        spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
+    // camera_transform.translation =
+    //     spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
+    camera_transform.translation = camera_transform.translation.lerp(
+        spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0),
+        CAMERA_LERP_SPEED * time.delta_seconds(),
+    );
 }
