@@ -6,8 +6,8 @@ use jumpy::{
     spaceship::SpaceshipPlugin, splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
 };
 
-pub const WW: u32 = 1000;
-pub const WH: u32 = 800;
+const WW: u32 = 1000;
+const WH: u32 = 800;
 
 fn main() {
     App::new()

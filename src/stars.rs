@@ -4,10 +4,10 @@ use bevy::prelude::*;
 
 use rand::Rng;
 
-const STAR_COUNT: usize = 100;
-const STAR_SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
-const STAR_SPAWN_RANGE_Y: Range<f32> = -25.0..25.0;
-const STAR_SPAWN_RANGE_Z: Range<f32> = -25.0..25.0;
+const STAR_COUNT: usize = 250;
+const STAR_SPAWN_RANGE_X: Range<f32> = -250.0..250.0;
+const STAR_SPAWN_RANGE_Y: Range<f32> = -250.0..250.0;
+const STAR_SPAWN_RANGE_Z: Range<f32> = -250.0..250.0;
 
 pub struct StarsPlugin;
 

@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::spaceship::Spaceship;
 
-const CAMERA_DISTANCE: f32 = 80.0;
+const CAMERA_DISTANCE: f32 = 120.0;
 
 #[derive(Component)]
 pub struct MainCamera;
