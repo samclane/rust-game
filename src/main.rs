@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, prelude::*};
 use jumpy::{
     asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, camera::CameraPlugin,
     collision_detection::CollisionDetectionPlugin, debug::DebugPlugin, despawn::DespawnPlugin,
@@ -26,6 +26,8 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(LogDiagnosticsPlugin::default())
+        .add_plugins(FrameTimeDiagnosticsPlugin)
         // User configured plugins
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(MovementPlugin)
