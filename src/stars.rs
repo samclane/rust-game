@@ -37,7 +37,7 @@ fn spawn_stars(
         );
         let transform = Transform::from_translation(translation);
         commands.spawn((PbrBundle {
-            transform: transform,
+            transform,
             mesh: mesh.clone(),
             material: material.clone(),
             ..default()

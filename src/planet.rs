@@ -52,7 +52,7 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
                 mass: Mass::new(rng.gen_range(PLANET_RANGE_MASS)),
                 model: SceneBundle {
                     scene: scene_assets.planets.clone(),
-                    transform: transform,
+                    transform,
                     ..Default::default()
                 },
                 collider: Collider::new(transform.scale.x * 0.5),
