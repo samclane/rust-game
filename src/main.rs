@@ -1,37 +1,13 @@
-mod asset_loader;
-mod asteroids;
-mod camera;
-mod collision_detection;
-mod debug;
-mod despawn;
-mod health;
-mod menus;
-mod movement;
-mod planet;
-mod schedule;
-mod spaceship;
-mod splash;
-mod stars;
-mod state;
-
-use asset_loader::AssetLoaderPlugin;
-use asteroids::AsteroidPlugin;
 use bevy::prelude::*;
-use camera::CameraPlugin;
-use collision_detection::CollisionDetectionPlugin;
-use debug::DebugPlugin;
-use despawn::DespawnPlugin;
-use menus::MenusPlugin;
-use movement::MovementPlugin;
-use planet::PlanetPlugin;
-use schedule::SchedulePlugin;
-use spaceship::SpaceshipPlugin;
-use splash::SplashPlugin;
-use stars::StarsPlugin;
-use state::StatePlugin;
+use jumpy::{
+    asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, camera::CameraPlugin,
+    collision_detection::CollisionDetectionPlugin, debug::DebugPlugin, despawn::DespawnPlugin,
+    menus::MenusPlugin, movement::MovementPlugin, planet::PlanetPlugin, schedule::SchedulePlugin,
+    spaceship::SpaceshipPlugin, splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
+};
 
-const WW: u32 = 1000;
-const WH: u32 = 800;
+pub const WW: u32 = 1000;
+pub const WH: u32 = 800;
 
 fn main() {
     App::new()
