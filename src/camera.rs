@@ -1,11 +1,12 @@
 use bevy::{
     core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping},
+    input::mouse::MouseWheel,
     prelude::*,
 };
 
 use crate::spaceship::Spaceship;
 
-const CAMERA_DISTANCE: f32 = 120.0;
+const CAMERA_DISTANCE_INIT: f32 = 120.0;
 const CAMERA_LERP_SPEED: f32 = 9.81; // for fun
 
 #[derive(Component)]
@@ -15,8 +16,10 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_camera)
-            .add_systems(Update, pan_camera_to_spaceship);
+        app.add_systems(Startup, spawn_camera).add_systems(
+            Update,
+            (pan_camera_to_spaceship, zoom_camera_controls).chain(),
+        );
     }
 }
 
@@ -28,7 +31,7 @@ fn spawn_camera(mut commands: Commands) {
                 ..default()
             },
             tonemapping: Tonemapping::TonyMcMapface,
-            transform: Transform::from_xyz(0.0, CAMERA_DISTANCE, 0.0)
+            transform: Transform::from_xyz(0.0, CAMERA_DISTANCE_INIT, 0.0)
                 .looking_at(Vec3::ZERO, Vec3::Z),
             ..default()
         },
@@ -51,7 +54,18 @@ fn pan_camera_to_spaceship(
     // camera_transform.translation =
     //     spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
     camera_transform.translation = camera_transform.translation.lerp(
-        spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0),
+        spaceship_transform.translation + Vec3::new(0.0, camera_transform.translation.y, 0.0),
         CAMERA_LERP_SPEED * time.delta_seconds(),
     );
+}
+
+fn zoom_camera_controls(
+    mut scroll_evr: EventReader<MouseWheel>,
+    mut camera_query: Query<&mut Transform, With<MainCamera>>,
+) {
+    for event in scroll_evr.read() {
+        for mut camera_transform in camera_query.iter_mut() {
+            camera_transform.translation.y += event.y * 10.0;
+        }
+    }
 }

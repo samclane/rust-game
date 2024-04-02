@@ -9,6 +9,9 @@ const STAR_SPAWN_RANGE_X: Range<f32> = -250.0..250.0;
 const STAR_SPAWN_RANGE_Y: Range<f32> = -250.0..250.0;
 const STAR_SPAWN_RANGE_Z: Range<f32> = -250.0..250.0;
 
+#[derive(Component, Debug)]
+pub struct Star;
+
 pub struct StarsPlugin;
 
 impl Plugin for StarsPlugin {
@@ -36,11 +39,26 @@ fn spawn_stars(
             rng.gen_range(STAR_SPAWN_RANGE_Z),
         );
         let transform = Transform::from_translation(translation);
-        commands.spawn((PbrBundle {
-            transform,
-            mesh: mesh.clone(),
-            material: material.clone(),
-            ..default()
-        },));
+        commands
+            .spawn((
+                PbrBundle {
+                    transform,
+                    mesh: mesh.clone(),
+                    material: material.clone(),
+                    ..default()
+                },
+                Star,
+            ))
+            .with_children(|children| {
+                children.spawn(PointLightBundle {
+                    point_light: PointLight {
+                        intensity: 4000.0,
+                        radius: 1000.,
+                        color: Color::ANTIQUE_WHITE,
+                        ..default()
+                    },
+                    ..default()
+                });
+            });
     }
 }
