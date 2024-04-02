@@ -13,13 +13,13 @@ use crate::{
     state::GameState,
 };
 
-const NUM_PLANETS: usize = 7;
+const NUM_PLANETS: usize = 20;
 const PLANET_COLLISION_DAMAGE: f32 = 10.0;
-const PLANET_RANGE_MASS: Range<f32> = 1.0..10.0;
-const SPAWN_RANGE_X: Range<f32> = -250.0..250.0;
-const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
-const PLANET_RANGE_SCALE: Range<f32> = 2.5..5.5;
-const HEALTH: f32 = 1000.0;
+const PLANET_RANGE_MASS: Range<f32> = 5.0..20.0;
+const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
+const SPAWN_RANGE_Z: Range<f32> = -500.0..500.0;
+const PLANET_RANGE_SCALE: Range<f32> = 25.5..55.5;
+const HEALTH: f32 = 10_000_000.0;
 const ROTATION_SPEED: f32 = 1.5;
 
 #[derive(Component, Debug)]
