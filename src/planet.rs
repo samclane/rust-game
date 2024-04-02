@@ -18,7 +18,7 @@ const PLANET_COLLISION_DAMAGE: f32 = 10.0;
 const PLANET_RANGE_MASS: Range<f32> = 5.0..20.0;
 const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
 const SPAWN_RANGE_Z: Range<f32> = -500.0..500.0;
-const PLANET_RANGE_SCALE: Range<f32> = 25.5..55.5;
+const PLANET_RANGE_SCALE: Range<f32> = 15.5..25.5;
 const HEALTH: f32 = 10_000_000.0;
 const ROTATION_SPEED: f32 = 1.5;
 
