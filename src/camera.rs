@@ -8,6 +8,7 @@ use crate::spaceship::Spaceship;
 
 const CAMERA_DISTANCE_INIT: f32 = 120.0;
 const CAMERA_LERP_SPEED: f32 = 9.81; // for fun
+const CAMERA_SCROLL_FACTOR: f32 = 70.0;
 
 #[derive(Component)]
 pub struct MainCamera;
@@ -62,10 +63,14 @@ fn pan_camera_to_spaceship(
 fn zoom_camera_controls(
     mut scroll_evr: EventReader<MouseWheel>,
     mut camera_query: Query<&mut Transform, With<MainCamera>>,
+    time: Res<Time>,
 ) {
     for event in scroll_evr.read() {
         for mut camera_transform in camera_query.iter_mut() {
-            camera_transform.translation.y += event.y * 10.0;
+            camera_transform.translation = camera_transform.translation.lerp(
+                camera_transform.translation + Vec3::new(0.0, event.y * CAMERA_SCROLL_FACTOR, 0.0),
+                CAMERA_LERP_SPEED * time.delta_seconds(),
+            );
         }
     }
 }
