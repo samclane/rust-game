@@ -40,29 +40,48 @@ impl Plugin for PlanetPlugin {
 
 fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     let mut rng = rand::thread_rng();
-    for _ in 0..NUM_PLANETS {
+    let mut planets: Vec<Transform> = vec![];
+    let mut attempts = 0;
+    let max_attempts = NUM_PLANETS * 10; // Prevent infinite loop
+
+    while planets.len() < NUM_PLANETS && attempts < max_attempts {
+        attempts += 1;
         let translation = Vec3::new(
             rng.gen_range(SPAWN_RANGE_X),
             0.0,
             rng.gen_range(SPAWN_RANGE_Z),
         );
-        let transform = Transform::from_translation(translation)
-            .with_scale(Vec3::splat(rng.gen_range(PLANET_RANGE_SCALE)));
+        let scale = rng.gen_range(PLANET_RANGE_SCALE);
+        let transform = Transform::from_translation(translation).with_scale(Vec3::splat(scale));
+
+        if planets.iter().any(|planet_transform| {
+            let distance = (planet_transform.translation - transform.translation).length();
+            distance < (2. * transform.scale.x) + (2. * planet_transform.scale.x)
+        }) {
+            continue;
+        }
+
+        let mass = Mass::new(rng.gen_range(PLANET_RANGE_MASS));
+        let collider = Collider::new(transform.scale.x * 2.);
+        let model = SceneBundle {
+            scene: scene_assets.planets.clone(),
+            transform,
+            ..Default::default()
+        };
+
         commands.spawn((
             StaticObjectBundle {
-                mass: Mass::new(rng.gen_range(PLANET_RANGE_MASS)),
-                model: SceneBundle {
-                    scene: scene_assets.planets.clone(),
-                    transform,
-                    ..Default::default()
-                },
-                collider: Collider::new(transform.scale.x * 0.5),
+                mass,
+                model,
+                collider,
             },
             Planet,
             CollisionDamage::new(PLANET_COLLISION_DAMAGE),
             Health::new(HEALTH),
             DebugEntity,
         ));
+
+        planets.push(transform);
     }
 }
 

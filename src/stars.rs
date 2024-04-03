@@ -6,8 +6,8 @@ use rand::Rng;
 
 const STAR_COUNT: usize = 250;
 const STAR_SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
-const STAR_SPAWN_RANGE_Y: Range<f32> = -500.0..500.0;
-const STAR_SPAWN_RANGE_Z: Range<f32> = -250.0..250.0;
+const STAR_SPAWN_RANGE_Y: Range<f32> = -250.0..250.0;
+const STAR_SPAWN_RANGE_Z: Range<f32> = -500.0..500.0;
 
 #[derive(Component, Debug)]
 pub struct Star;
