@@ -2,6 +2,7 @@ use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
     asteroids::Asteroid,
+    enemy::Enemy,
     health::Health,
     planet::Planet,
     schedule::InGameSet,
@@ -65,6 +66,7 @@ impl Plugin for CollisionDetectionPlugin {
                     handle_collisions::<Spaceship>,
                     handle_collisions::<SpaceshipMissile>,
                     handle_collisions::<Planet>,
+                    handle_collisions::<Enemy>,
                 ),
                 apply_collision_damage,
             )

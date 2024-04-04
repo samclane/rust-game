@@ -6,6 +6,7 @@ pub struct SceneAssets {
     pub spaceship: Handle<Scene>,
     pub missiles: Handle<Scene>,
     pub planets: Handle<Scene>,
+    pub aliens: Handle<Scene>,
 }
 
 pub struct AssetLoaderPlugin;
@@ -22,4 +23,5 @@ fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<AssetSer
     scene_assets.spaceship = asset_server.load("Spaceship.glb#Scene0");
     scene_assets.missiles = asset_server.load("Bush.glb#Scene0");
     scene_assets.planets = asset_server.load("Planet.glb#Scene0");
+    scene_assets.aliens = asset_server.load("Mech.glb#Scene0");
 }

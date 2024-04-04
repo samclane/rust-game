@@ -4,10 +4,11 @@ use bevy::{
     prelude::*,
 };
 use jumpy::{
-    asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, camera::CameraPlugin,
-    collision_detection::CollisionDetectionPlugin, debug::DebugPlugin, despawn::DespawnPlugin,
-    menus::MenusPlugin, movement::MovementPlugin, planet::PlanetPlugin, schedule::SchedulePlugin,
-    spaceship::SpaceshipPlugin, splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
+    asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, behaviors::BehaviorsPlugin,
+    camera::CameraPlugin, collision_detection::CollisionDetectionPlugin, debug::DebugPlugin,
+    despawn::DespawnPlugin, enemy::EnemyPlugin, menus::MenusPlugin, movement::MovementPlugin,
+    planet::PlanetPlugin, schedule::SchedulePlugin, spaceship::SpaceshipPlugin,
+    splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
 };
 
 const WW: u32 = 1000;
@@ -47,5 +48,7 @@ fn main() {
         .add_plugins(SplashPlugin)
         .add_plugins(DebugPlugin)
         .add_plugins(StarsPlugin)
+        .add_plugins(BehaviorsPlugin)
+        .add_plugins(EnemyPlugin)
         .run();
 }

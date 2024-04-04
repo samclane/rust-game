@@ -98,7 +98,7 @@ fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<
     }
 }
 
-fn get_random_position_around(pos: Vec3, range: Range<f32>) -> (f32, f32) {
+pub fn get_random_position_around(pos: Vec3, range: Range<f32>) -> (f32, f32) {
     let mut rng = rand::thread_rng();
     let angle = rng.gen_range(0.0..PI * 2.0);
     let dist = rng.gen_range(range);

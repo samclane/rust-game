@@ -7,7 +7,7 @@ use bevy::{
 use crate::spaceship::Spaceship;
 
 const CAMERA_DISTANCE_INIT: f32 = 120.0;
-const CAMERA_LERP_SPEED: f32 = 9.81; // for fun
+const CAMERA_LERP_SPEED: f32 = 7.;
 const CAMERA_SCROLL_FACTOR: f32 = 70.0;
 
 #[derive(Component)]
@@ -52,8 +52,7 @@ fn pan_camera_to_spaceship(
     let Ok(mut camera_transform) = camera_query.get_single_mut() else {
         return;
     };
-    // camera_transform.translation =
-    //     spaceship_transform.translation + Vec3::new(0.0, CAMERA_DISTANCE, 0.0);
+
     camera_transform.translation = camera_transform.translation.lerp(
         spaceship_transform.translation + Vec3::new(0.0, camera_transform.translation.y, 0.0),
         CAMERA_LERP_SPEED * time.delta_seconds(),
