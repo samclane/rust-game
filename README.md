@@ -1,4 +1,4 @@
-# Rust Game (WIP)
+# Rust Game
 
 ![](screenshot.png)
 
