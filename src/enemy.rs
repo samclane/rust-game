@@ -4,7 +4,7 @@ use std::ops::Range;
 use crate::{
     asset_loader::SceneAssets,
     asteroids::get_random_position_around,
-    behaviors::GaussianWalker,
+    behaviors::WalkerType,
     collision_detection::{Collider, CollisionDamage},
     debug::DebugEntity,
     health::Health,
@@ -63,7 +63,7 @@ fn spawn_enemies(
     let enemy_spawn_count = (NUM_ENEMIES - num_enemies).min(NUM_ENEMIES);
     info!("Spawning {} enemies", enemy_spawn_count);
     let player_pos = player_query.single().translation;
-    for _ in 0..enemy_spawn_count {
+    (0..enemy_spawn_count).for_each(|_| {
         let (x, z) = get_random_position_around(player_pos, ENEMY_SPAWN_RANGE);
         let translation = Vec3::new(x, 0.0, z);
         commands.spawn((
@@ -81,10 +81,10 @@ fn spawn_enemies(
             Enemy,
             Health::new(ENEMY_HEALTH),
             CollisionDamage::new(ENEMY_COLLISION_DAMAGE),
-            GaussianWalker,
+            WalkerType::get_random(),
             DebugEntity,
         ));
-    }
+    });
 }
 
 fn rotate_to_face_player(

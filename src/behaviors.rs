@@ -7,11 +7,28 @@ use rand::Rng;
 
 use crate::{movement::Acceleration, schedule::InGameSet};
 
-#[derive(Component)]
-pub struct RandomWalker;
+#[derive(Component, Debug)]
+pub enum WalkerType {
+    RandomWalker,
+    GaussianWalker,
+}
 
-#[derive(Component)]
-pub struct GaussianWalker;
+impl WalkerType {
+    pub fn get_random() -> Self {
+        match rand::thread_rng().gen_range(0..2) {
+            0 => Self::GaussianWalker,
+            _ => Self::RandomWalker,
+        }
+    }
+
+    pub fn new_random() -> Self {
+        Self::RandomWalker
+    }
+
+    pub fn new_gaussian() -> Self {
+        Self::GaussianWalker
+    }
+}
 
 pub struct BehaviorsPlugin;
 
@@ -24,7 +41,7 @@ impl Plugin for BehaviorsPlugin {
     }
 }
 
-fn random_walk(mut query: Query<&mut Acceleration, With<RandomWalker>>) {
+fn random_walk(mut query: Query<&mut Acceleration, With<WalkerType>>) {
     let mut rng = rand::thread_rng();
     let dist = Uniform::new(-1.0, 1.0);
     for mut acceleration in query.iter_mut() {
@@ -33,7 +50,7 @@ fn random_walk(mut query: Query<&mut Acceleration, With<RandomWalker>>) {
     }
 }
 
-fn gaussian_walk(mut query: Query<&mut Acceleration, With<GaussianWalker>>) {
+fn gaussian_walk(mut query: Query<&mut Acceleration, With<WalkerType>>) {
     let mut rng = rand::thread_rng();
     let Ok(normal) = Normal::new(0.0, 1.0) else {
         panic!("Failed to create normal distribution");
