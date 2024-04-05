@@ -8,30 +8,16 @@ use rand::Rng;
 use crate::{movement::Acceleration, schedule::InGameSet};
 
 #[derive(Component, Debug)]
-pub enum WalkerType {
-    RandomWalker,
-    GaussianWalker,
-    NormalWalker,
-}
 
-impl WalkerType {
-    pub fn get_random() -> Self {
-        let count = 3;
-        match rand::thread_rng().gen_range(0..count) {
-            1 => Self::NormalWalker,
-            0 => Self::GaussianWalker,
-            _ => Self::RandomWalker,
-        }
-    }
+pub struct RandomWalker;
 
-    pub fn new_random() -> Self {
-        Self::RandomWalker
-    }
+#[derive(Component, Debug)]
 
-    pub fn new_gaussian() -> Self {
-        Self::GaussianWalker
-    }
-}
+pub struct GaussianWalker;
+
+#[derive(Component, Debug)]
+
+pub struct NormalWalker;
 
 pub struct BehaviorsPlugin;
 
@@ -44,7 +30,7 @@ impl Plugin for BehaviorsPlugin {
     }
 }
 
-fn random_walk(mut query: Query<&mut Acceleration, With<WalkerType>>) {
+fn random_walk(mut query: Query<&mut Acceleration, With<RandomWalker>>) {
     let mut rng = rand::thread_rng();
     let dist = Uniform::new(-1.0, 1.0);
     for mut acceleration in query.iter_mut() {
@@ -53,8 +39,8 @@ fn random_walk(mut query: Query<&mut Acceleration, With<WalkerType>>) {
     }
 }
 
-fn walk<T: Distribution<f32>>(
-    mut query: Query<&mut Acceleration, With<WalkerType>>,
+fn walk<T: Distribution<f32>, U: Component>(
+    mut query: Query<&mut Acceleration, With<U>>,
     distribution: T,
 ) {
     let mut rng = rand::thread_rng();
@@ -64,12 +50,12 @@ fn walk<T: Distribution<f32>>(
     }
 }
 
-fn gaussian_walk(query: Query<&mut Acceleration, With<WalkerType>>) {
+fn gaussian_walk(query: Query<&mut Acceleration, With<GaussianWalker>>) {
     let distribution = StandardNormal;
     walk(query, distribution);
 }
 
-fn normal_walk(query: Query<&mut Acceleration, With<WalkerType>>) {
+fn normal_walk(query: Query<&mut Acceleration, With<NormalWalker>>) {
     let distribution = Normal::new(0.0, 0.5).unwrap();
     walk(query, distribution);
 }
