@@ -23,7 +23,7 @@ const MISSILE_SPEED: f32 = 50.0;
 const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.;
 const MISSILE_HEALTH: f32 = 1.0;
 const MISSILE_COLLISION_DAMAGE: f32 = 5.0;
-const MISSILE_FIRE_RATE: f32 = 0.5;
+const MISSILE_FIRE_DELAY: f32 = 0.2;
 const MISSILE_MASS: f32 = 1.0;
 const MISSILE_RADIUS: f32 = 1.0;
 
@@ -36,12 +36,12 @@ pub struct SpaceShipShield;
 #[derive(Component, Debug)]
 pub struct SpaceshipMissile;
 
-pub struct SpaceshipPlugin;
-
 #[derive(Component, Debug)]
 pub struct SpaceshipMissileFireRate {
     pub timer: Timer,
 }
+
+pub struct SpaceshipPlugin;
 
 impl Plugin for SpaceshipPlugin {
     fn build(&self, app: &mut App) {
@@ -79,7 +79,7 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         Health::new(SPACESHIP_HEALTH),
         CollisionDamage::new(SPACESHIP_COLLISION_DAMAGE),
         SpaceshipMissileFireRate {
-            timer: Timer::from_seconds(MISSILE_FIRE_RATE, TimerMode::Once),
+            timer: Timer::from_seconds(MISSILE_FIRE_DELAY, TimerMode::Once),
         },
         DebugEntity,
     ));
@@ -152,6 +152,7 @@ fn spaceship_weapon_controls(
             SpaceshipMissile,
             Health::new(MISSILE_HEALTH),
             CollisionDamage::new(MISSILE_COLLISION_DAMAGE),
+            DebugEntity,
         ));
         fire_rate.timer.reset();
     }
