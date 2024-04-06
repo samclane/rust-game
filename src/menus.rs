@@ -106,6 +106,7 @@ impl Plugin for MenusPlugin {
 }
 
 // This system handles changing all buttons color based on mouse interaction
+#[allow(clippy::type_complexity)]
 fn button_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
@@ -124,6 +125,7 @@ fn button_system(
 
 // This system updates the settings when a new value for a setting is selected, and marks
 // the button as the one currently selected
+#[allow(clippy::type_complexity)]
 fn setting_button<T: Resource + Component + PartialEq + Copy>(
     interaction_query: Query<(&Interaction, &T, Entity), (Changed<Interaction>, With<Button>)>,
     mut selected_query: Query<(Entity, &mut BackgroundColor), With<SelectedOption>>,
@@ -540,6 +542,7 @@ fn sound_settings_menu_setup(mut commands: Commands, volume: Res<Volume>) {
         });
 }
 
+#[allow(clippy::type_complexity)]
 fn menu_action(
     interaction_query: Query<
         (&Interaction, &MenuButtonAction),
