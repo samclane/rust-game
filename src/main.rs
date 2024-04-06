@@ -2,6 +2,7 @@
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
+    winit::WinitWindows,
 };
 use jumpy::{
     asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, behaviors::BehaviorsPlugin,
@@ -10,6 +11,7 @@ use jumpy::{
     planet::PlanetPlugin, schedule::SchedulePlugin, spaceship::SpaceshipPlugin,
     splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
 };
+use winit::window::Icon;
 
 const WW: u32 = 1000;
 const WH: u32 = 800;
@@ -22,6 +24,7 @@ fn main() {
             color: Color::default(),
             brightness: 1000., // Hack to make the light brighter
         })
+        .add_systems(Startup, set_window_icon)
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "jumpy".to_string(),
@@ -51,4 +54,26 @@ fn main() {
         .add_plugins(BehaviorsPlugin)
         .add_plugins(EnemyPlugin)
         .run();
+}
+
+fn set_window_icon(
+    // we have to use `NonSend` here
+    windows: NonSend<WinitWindows>,
+) {
+    // here we use the `image` crate to load our icon data from a png file
+    // this is not a very bevy-native solution, but it will do
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open("assets/icon.png")
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
+
+    // do it for all windows
+    for window in windows.windows.values() {
+        window.set_window_icon(Some(icon.clone()));
+    }
 }

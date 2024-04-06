@@ -6,6 +6,8 @@ Based on the tutorial by [Zymartu Games](https://www.youtube.com/watch?v=B6ZFuYY
 
 Assets via [Ultimate Space Kit by Quaternius via Poly Pizza](https://poly.pizza/bundle/Ultimate-Space-Kit-YWh743lqGX)
 
+Icon via OpenAI [DALL-E](https://openai.com/dall-e-3)
+
 ## Run locally
 
 - Clone the repository
