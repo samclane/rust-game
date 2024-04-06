@@ -1,4 +1,4 @@
-# Rust Game
+# Rust Game (jumpy)
 
 ![](screenshot.png)
 
@@ -21,7 +21,7 @@ Assets via [Ultimate Space Kit by Quaternius via Poly Pizza](https://poly.pizza/
   cargo run
 ```
 
-## Run release
+## Run release binaries
 
  - Download the release from the [releases](https://github.com/samclane/rust-game/releases)
 
@@ -29,7 +29,7 @@ Assets via [Ultimate Space Kit by Quaternius via Poly Pizza](https://poly.pizza/
 - Extract the release and run the executable
 
 ```bash
-  unzip jumpy.zip -d jumpy
+  unzip jumpy-{platform}-{version}.zip -d jumpy
   cd jumpy
   ./jumpy.exe
 ```

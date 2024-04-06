@@ -4,7 +4,7 @@ use std::ops::Range;
 use crate::{
     asset_loader::SceneAssets,
     asteroids::get_random_position_around,
-    behaviors::PerlinWalker,
+    behaviors::get_random_walk_type,
     collision_detection::{Collider, CollisionDamage},
     debug::DebugEntity,
     health::Health,
@@ -81,7 +81,7 @@ fn spawn_enemies(
             Enemy,
             Health::new(ENEMY_HEALTH),
             CollisionDamage::new(ENEMY_COLLISION_DAMAGE),
-            PerlinWalker,
+            get_random_walk_type(),
             DebugEntity,
         ));
     });

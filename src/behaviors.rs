@@ -9,70 +9,75 @@ use noise::{NoiseFn, Perlin};
 
 use crate::{movement::Acceleration, schedule::InGameSet};
 
-#[derive(Component, Debug)]
-
-pub struct RandomWalker;
-
-#[derive(Component, Debug)]
-
-pub struct GaussianWalker;
-
-#[derive(Component, Debug)]
-
-pub struct NormalWalker;
-
-#[derive(Component, Debug)]
-pub struct PerlinWalker;
-
 pub struct BehaviorsPlugin;
+
+#[derive(Component)]
+pub enum WalkType {
+    Random,
+    Gaussian,
+    Normal,
+    Perlin,
+}
 
 impl Plugin for BehaviorsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (random_walk, gaussian_walk, normal_walk, perlin_walk).in_set(InGameSet::EntityUpdates),
-        );
+        app.add_systems(Update, (handle_walks).in_set(InGameSet::EntityUpdates));
     }
 }
 
-fn random_walk(mut query: Query<&mut Acceleration, With<RandomWalker>>) {
+pub fn get_random_walk_type() -> WalkType {
+    let mut rng = rand::thread_rng();
+    match rng.gen_range(0..4) {
+        0 => WalkType::Random,
+        1 => WalkType::Gaussian,
+        2 => WalkType::Normal,
+        _ => WalkType::Perlin,
+    }
+}
+
+fn get_walk(walk_type: &WalkType) -> fn(&mut Acceleration, &Transform) {
+    match walk_type {
+        WalkType::Random => random_walk,
+        WalkType::Gaussian => gaussian_walk,
+        WalkType::Normal => normal_walk,
+        WalkType::Perlin => perlin_walk,
+    }
+}
+
+fn handle_walks(mut walker_query: Query<(&Transform, &mut Acceleration, &WalkType)>) {
+    for (transform, mut acceleration, walk_type) in walker_query.iter_mut() {
+        let walk = get_walk(walk_type);
+        walk(&mut acceleration, transform);
+    }
+}
+
+fn random_walk(acceleration: &mut Acceleration, _transform: &Transform) {
     let mut rng = rand::thread_rng();
     let dist = Uniform::new(-1.0, 1.0);
-    for mut acceleration in query.iter_mut() {
-        let (x, z) = (rng.sample(dist), rng.sample(dist));
-        acceleration.value += Vec3::new(x, 0., z);
-    }
+    let (x, z) = (rng.sample(dist), rng.sample(dist));
+    acceleration.value += Vec3::new(x, 0., z);
 }
 
-fn walk<T: Distribution<f32>, U: Component>(
-    mut query: Query<&mut Acceleration, With<U>>,
-    distribution: T,
-) {
-    let mut rng = rand::thread_rng();
-    for mut acceleration in query.iter_mut() {
-        let (x, z) = (distribution.sample(&mut rng), distribution.sample(&mut rng));
-        acceleration.value += Vec3::new(x, 0., z);
-    }
-}
-
-fn gaussian_walk(query: Query<&mut Acceleration, With<GaussianWalker>>) {
+fn gaussian_walk(acceleration: &mut Acceleration, _transform: &Transform) {
     let distribution = StandardNormal;
-    walk(query, distribution);
+    let mut rng = rand::thread_rng();
+    let (x, z) = (distribution.sample(&mut rng), distribution.sample(&mut rng));
+    acceleration.value += Vec3::new(x, 0., z);
 }
 
-fn normal_walk(query: Query<&mut Acceleration, With<NormalWalker>>) {
+fn normal_walk(acceleration: &mut Acceleration, _transform: &Transform) {
     let distribution = Normal::new(0.0, 0.5).unwrap();
-    walk(query, distribution);
+    let mut rng = rand::thread_rng();
+    let (x, z) = (distribution.sample(&mut rng), distribution.sample(&mut rng));
+    acceleration.value += Vec3::new(x, 0., z);
 }
 
-fn perlin_walk(mut query: Query<(&Transform, &mut Acceleration), With<PerlinWalker>>) {
+fn perlin_walk(acceleration: &mut Acceleration, transform: &Transform) {
     let multiplier: f32 = 1.;
     let perlin = Perlin::new(1);
-    for (transform, mut acceleration) in query.iter_mut() {
-        let (x, z) = (
-            perlin.get([transform.translation.x as f64, 0., 0.]),
-            perlin.get([0., 0., transform.translation.z as f64]),
-        );
-        acceleration.value += Vec3::new(x as f32, 0., z as f32) * multiplier;
-    }
+    let (x, z) = (
+        perlin.get([transform.translation.x as f64, 0., 0.]),
+        perlin.get([0., 0., transform.translation.z as f64]),
+    );
+    acceleration.value += Vec3::new(x as f32, 0., z as f32) * multiplier;
 }
