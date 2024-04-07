@@ -7,7 +7,7 @@ use bevy::{
 use crate::spaceship::Spaceship;
 
 const CAMERA_DISTANCE_INIT: f32 = 120.0;
-const CAMERA_LERP_SPEED: f32 = 7.;
+const CAMERA_LERP_SPEED: f32 = 2.;
 const CAMERA_SCROLL_FACTOR: f32 = 70.0;
 
 #[derive(Component)]
@@ -57,6 +57,8 @@ fn pan_camera_to_spaceship(
         spaceship_transform.translation + Vec3::new(0.0, camera_transform.translation.y, 0.0),
         CAMERA_LERP_SPEED * time.delta_seconds(),
     );
+
+    camera_transform.look_at(spaceship_transform.translation, Vec3::Z);
 }
 
 fn zoom_camera_controls(
