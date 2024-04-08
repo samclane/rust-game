@@ -6,7 +6,7 @@ use bevy::{
 };
 use noise::{
     core::worley::ReturnType,
-    utils::{NoiseMapBuilder, PlaneMapBuilder},
+    utils::{ColorGradient, NoiseMapBuilder, PlaneMapBuilder},
     Add, Cache, Fbm, MultiFractal, NoiseFn, Perlin, Worley,
 };
 use rand::Rng;
@@ -78,16 +78,27 @@ fn render_background(
         .set_x_bounds(-2.0, 2.0)
         .set_y_bounds(-2.0, 2.0)
         .build();
+    let nebula_gradient = ColorGradient::new()
+        .clear_gradient()
+        .add_gradient_point(-1.0000, [5, 0, 15, 255]) // Almost black, deep space
+        .add_gradient_point(-0.9375, [18, 0, 30, 255]) // Very dark purple, the void of space
+        .add_gradient_point(-0.7500, [28, 0, 60, 255]) // Dark purple, the depth of a nebula
+        .add_gradient_point(-0.5000, [40, 0, 72, 255]) // Dark indigo, suggesting a dense nebula region
+        .add_gradient_point(-0.2500, [48, 20, 80, 255]) // Dark purple with a hint of color, adding depth
+        .add_gradient_point(0.0000, [60, 20, 92, 255]) // Slightly lighter purple, for internal nebula lighting
+        .add_gradient_point(0.2500, [75, 0, 130, 255]) // Indigo, brighter regions of the nebula
+        .add_gradient_point(0.5000, [0, 0, 0, 255]) // Black, to reintroduce the concept of vast, empty space
+        .add_gradient_point(0.7500, [143, 0, 255, 255]) // Electric purple, rarefied areas of gas illumination
+        .add_gradient_point(1.0000, [255, 255, 255, 255]); // Bright white, representing the brightest stars
     for y in 0..size.height {
         for x in 0..size.width {
             let value = noise_map.get_value(x as usize, y as usize);
-            let value = (value * 0.5 + 0.5) * 255.0;
-            let value = value as u8;
             let index = (y * size.width + x) as usize * 4;
-            image.data[index] = value;
-            image.data[index + 1] = value;
-            image.data[index + 2] = value;
-            image.data[index + 3] = 255;
+            let color = nebula_gradient.get_color(value as f64);
+            image.data[index] = color[0];
+            image.data[index + 1] = color[1];
+            image.data[index + 2] = color[2];
+            image.data[index + 3] = color[3];
         }
     }
 
