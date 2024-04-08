@@ -1,5 +1,6 @@
 pub mod asset_loader;
 pub mod asteroids;
+pub mod background;
 pub mod behaviors;
 pub mod camera;
 pub mod collision_detection;
