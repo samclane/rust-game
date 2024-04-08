@@ -2,6 +2,7 @@ use bevy::{app::AppExit, prelude::*};
 
 use crate::state::GameState;
 
+const BACKGROUND_COLOR: Color = Color::rgba(0.0, 0.0, 0.0, 0.9);
 const TEXT_COLOR: Color = Color::WHITE;
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -177,7 +178,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     justify_content: JustifyContent::Center,
                     ..default()
                 },
-                background_color: Color::CRIMSON.into(),
+                background_color: BACKGROUND_COLOR.into(),
                 ..default()
             },
             OnMainMenuScreen,
@@ -307,7 +308,7 @@ fn settings_menu_setup(mut commands: Commands) {
                     justify_content: JustifyContent::Center,
                     ..default()
                 },
-                background_color: Color::CRIMSON.into(),
+                background_color: BACKGROUND_COLOR.into(),
                 ..default()
             },
             OnSettingsMenuScreen,
@@ -320,7 +321,7 @@ fn settings_menu_setup(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -386,7 +387,7 @@ fn display_settings_menu_setup(mut commands: Commands, display_quality: Res<Disp
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -398,7 +399,7 @@ fn display_settings_menu_setup(mut commands: Commands, display_quality: Res<Disp
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            background_color: Color::CRIMSON.into(),
+                            background_color: BACKGROUND_COLOR.into(),
                             ..default()
                         })
                         .with_children(|parent| {
@@ -490,7 +491,7 @@ fn sound_settings_menu_setup(mut commands: Commands, volume: Res<Volume>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -500,7 +501,7 @@ fn sound_settings_menu_setup(mut commands: Commands, volume: Res<Volume>) {
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            background_color: Color::CRIMSON.into(),
+                            background_color: BACKGROUND_COLOR.into(),
                             ..default()
                         })
                         .with_children(|parent| {
