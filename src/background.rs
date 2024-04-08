@@ -11,10 +11,16 @@ use noise::{
 };
 use rand::Rng;
 
+const WIDTH: u32 = 1000;
+const HEIGHT: u32 = 1000;
 const NEBULA_FREQUENCY: f64 = 2.0;
+const NEBULA_OCATAVES: usize = 5;
 const STAR_FREQUENCY: f64 = 1.0;
 const NEBULA_LACUNARITY: f64 = 3.0;
 const NEBULA_PERSISTENCE: f64 = 0.6;
+const NOISE_MAP_X_BOUNDS: (f64, f64) = (-2.0, 2.0);
+const NOISE_MAP_Y_BOUNDS: (f64, f64) = (-2.0, 2.0);
+const Y_OFFSET: f32 = -250.0;
 
 #[derive(Component)]
 pub struct Background;
@@ -33,8 +39,8 @@ fn render_background(
     mut images: ResMut<Assets<Image>>,
 ) {
     let size = Extent3d {
-        width: 1000,
-        height: 1000,
+        width: WIDTH,
+        height: HEIGHT,
         ..default()
     };
     let mut image = Image {
@@ -58,12 +64,12 @@ fn render_background(
 
     fn nebula_noise() -> impl NoiseFn<f64, 3> {
         let mut rng = rand::thread_rng();
-        let seed = rng.gen_range(0..1000);
+        let seed = rng.gen_range(0..u32::MAX);
         let nebula_base = Fbm::<Perlin>::new(seed)
             .set_frequency(NEBULA_FREQUENCY)
             .set_persistence(NEBULA_PERSISTENCE)
             .set_lacunarity(NEBULA_LACUNARITY)
-            .set_octaves(5);
+            .set_octaves(NEBULA_OCATAVES);
 
         let stars = Worley::new(seed + 1)
             .set_frequency(STAR_FREQUENCY)
@@ -75,8 +81,8 @@ fn render_background(
     let nebula_noise = nebula_noise();
     let noise_map = PlaneMapBuilder::new(&nebula_noise)
         .set_size(size.width as usize, size.height as usize)
-        .set_x_bounds(-2.0, 2.0)
-        .set_y_bounds(-2.0, 2.0)
+        .set_x_bounds(NOISE_MAP_X_BOUNDS.0, NOISE_MAP_X_BOUNDS.1)
+        .set_y_bounds(NOISE_MAP_Y_BOUNDS.0, NOISE_MAP_Y_BOUNDS.1)
         .build();
     let nebula_gradient = ColorGradient::new()
         .clear_gradient()
@@ -95,10 +101,7 @@ fn render_background(
             let value = noise_map.get_value(x as usize, y as usize);
             let index = (y * size.width + x) as usize * 4;
             let color = nebula_gradient.get_color(value as f64);
-            image.data[index] = color[0];
-            image.data[index + 1] = color[1];
-            image.data[index + 2] = color[2];
-            image.data[index + 3] = color[3];
+            image.data[index..index + 4].copy_from_slice(&color);
         }
     }
 
@@ -116,7 +119,7 @@ fn render_background(
         PbrBundle {
             mesh: plane_handle,
             material: plane_material_handle,
-            transform: Transform::from_translation(Vec3::new(0.0, -250., 0.0)),
+            transform: Transform::from_translation(Vec3::new(0.0, Y_OFFSET, 0.0)),
             ..default()
         },
         Background,

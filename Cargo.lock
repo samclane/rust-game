@@ -2256,7 +2256,7 @@ dependencies = [
 
 [[package]]
 name = "jumpy"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "bevy",
  "embed-resource",
