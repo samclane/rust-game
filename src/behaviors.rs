@@ -4,7 +4,10 @@ use rand::distributions::{Distribution, Uniform};
 use rand::{distributions::Standard, Rng};
 use rand_distr::Normal;
 
+use crate::spaceship::Spaceship;
 use crate::{movement::Acceleration, schedule::InGameSet};
+
+const SEEK_SPEED: f32 = 1.;
 
 pub struct BehaviorsPlugin;
 
@@ -53,13 +56,29 @@ impl WalkType {
 
 impl Plugin for BehaviorsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, handle_walks.in_set(InGameSet::EntityUpdates));
+        app.add_systems(
+            Update,
+            (handle_walks, handle_seek_player).in_set(InGameSet::EntityUpdates),
+        );
     }
 }
 
 fn handle_walks(mut walker_query: Query<(&Transform, &mut Acceleration, &WalkType)>) {
     for (transform, mut acceleration, walk_type) in walker_query.iter_mut() {
         walk_type.walk(&mut acceleration, transform);
+    }
+}
+
+fn handle_seek_player(
+    mut walker_query: Query<(&Transform, &mut Acceleration), With<WalkType>>,
+    player_query: Query<&Transform, With<Spaceship>>,
+) {
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
+    for (transform, mut acceleration) in walker_query.iter_mut() {
+        let direction = player_transform.translation - transform.translation;
+        acceleration.value += direction.normalize() * SEEK_SPEED;
     }
 }
 

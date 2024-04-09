@@ -64,9 +64,10 @@ impl Plugin for MovementPlugin {
     }
 }
 
-fn update_velocity(mut query: Query<(&Acceleration, &mut Velocity)>, time: Res<Time>) {
-    for (acceleration, mut velocity) in query.iter_mut() {
+fn update_velocity(mut query: Query<(&mut Acceleration, &mut Velocity)>, time: Res<Time>) {
+    for (mut acceleration, mut velocity) in query.iter_mut() {
         velocity.value += acceleration.value * time.delta_seconds();
+        acceleration.value = Vec3::ZERO;
     }
 }
 
