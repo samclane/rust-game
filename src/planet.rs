@@ -92,8 +92,8 @@ fn attract_objects_to_planets(
     for (planet_transform, planet_mass) in query.iter() {
         for (mut acceleration, transform, mass) in moving_query.iter_mut() {
             let direction = planet_transform.translation - transform.translation;
-            let distance = direction.length();
-            let force = (planet_mass.value * mass.value) / distance.powi(2);
+            let distance: f32 = direction.length();
+            let force = (planet_mass.value * mass.value) / (distance.powi(2) + f32::EPSILON);
             acceleration.value += direction.normalize() * force;
         }
     }
