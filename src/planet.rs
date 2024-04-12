@@ -66,7 +66,7 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         let model = SceneBundle {
             scene: scene_assets.planets.clone(),
             transform,
-            ..Default::default()
+            ..default()
         };
 
         commands.spawn((

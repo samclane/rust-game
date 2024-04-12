@@ -41,7 +41,7 @@ fn spawn_stars(
         let size = rng.gen_range(STAR_SIZE_RANGE);
         let material = materials.add(StandardMaterial {
             emissive: BASE_COLOR * size, // bigger stars are brighter
-            ..Default::default()
+            ..default()
         });
         commands
             .spawn((
