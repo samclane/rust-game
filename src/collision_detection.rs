@@ -1,28 +1,7 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
-use crate::{
-    asteroids::Asteroid,
-    enemy::Enemy,
-    health::Health,
-    planet::Planet,
-    schedule::InGameSet,
-    spaceship::{Spaceship, SpaceshipMissile},
-};
-
-#[derive(Component, Debug)]
-pub struct Collider {
-    pub radius: f32,
-    pub colliding_entities: Vec<Entity>,
-}
-
-impl Collider {
-    pub fn new(radius: f32) -> Self {
-        Self {
-            radius,
-            colliding_entities: vec![], // Initialize the colliding entities list
-        }
-    }
-}
+use crate::{asteroids::Asteroid, health::Health, schedule::InGameSet, spaceship::Spaceship};
 
 #[derive(Component, Debug)]
 pub struct CollisionDamage {
@@ -35,113 +14,56 @@ impl CollisionDamage {
     }
 }
 
-#[derive(Event, Debug)]
-pub struct CollisionEvent {
-    pub entity: Entity,
-    pub collided_entity: Entity,
-}
-
-impl CollisionEvent {
-    pub fn new(entity: Entity, collided_entity: Entity) -> Self {
-        Self {
-            entity,
-            collided_entity,
-        }
-    }
-}
-
 pub struct CollisionDetectionPlugin;
 
 impl Plugin for CollisionDetectionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            collision_detection.in_set(InGameSet::CollisionDetection),
-        )
-        .add_systems(
-            Update,
-            (
-                (
-                    handle_collisions::<Asteroid>,
-                    handle_collisions::<Spaceship>,
-                    handle_collisions::<SpaceshipMissile>,
-                    handle_collisions::<Planet>,
-                    handle_collisions::<Enemy>,
-                ),
-                apply_collision_damage,
+        app.add_systems(Update, display_events.in_set(InGameSet::CollisionDetection))
+            .add_systems(
+                Update,
+                (display_events, apply_collision_damage)
+                    .chain()
+                    .in_set(InGameSet::EntityUpdates),
             )
-                .chain()
-                .in_set(InGameSet::EntityUpdates),
-        )
-        .add_event::<CollisionEvent>();
+            .add_event::<CollisionEvent>();
     }
 }
 
-fn collision_detection(mut query: Query<(Entity, &GlobalTransform, &mut Collider)>) {
-    let mut colliding_entities: HashMap<Entity, Vec<Entity>> = HashMap::new();
-
-    for (entity_a, transform_a, collider_a) in query.iter() {
-        for (entity_b, transform_b, collider_b) in query.iter() {
-            if entity_a != entity_b {
-                let distance = transform_a
-                    .translation()
-                    .distance(transform_b.translation());
-                let combined_radius = collider_a.radius + collider_b.radius;
-
-                if distance < combined_radius {
-                    colliding_entities
-                        .entry(entity_a)
-                        .or_insert_with(Vec::new)
-                        .push(entity_b);
-                }
-            }
-        }
-    }
-
-    for (entity, _, mut collider) in query.iter_mut() {
-        collider.colliding_entities.clear();
-        if let Some(collisions) = colliding_entities.get(&entity) {
-            collider
-                .colliding_entities
-                .extend(collisions.iter().copied());
-        }
-    }
-}
-
-fn handle_collisions<T: Component>(
-    mut collision_event_writer: EventWriter<CollisionEvent>,
-    query: Query<(Entity, &Collider), With<T>>,
+fn display_events(
+    mut collision_events: EventReader<CollisionEvent>,
+    mut contact_force_events: EventReader<ContactForceEvent>,
 ) {
-    for (entity, collider) in query.iter() {
-        for &collided_entity in collider.colliding_entities.iter() {
-            // Entities collided with another entity of the same type
-            if query.get(collided_entity).is_ok() {
-                continue;
-            }
-            // Send collision event
-            collision_event_writer.send(CollisionEvent::new(entity, collided_entity));
-        }
+    for collision_event in collision_events.read() {
+        println!("Collision detected: {:?}", collision_event);
+    }
+    for contact_force_event in contact_force_events.read() {
+        println!("Contact force detected: {:?}", contact_force_event);
     }
 }
 
 pub fn apply_collision_damage(
-    mut collision_event_reader: EventReader<CollisionEvent>,
-    mut health_query: Query<&mut Health>,
-    collision_damage_query: Query<&CollisionDamage>,
+    rapier_context: Res<RapierContext>,
+    mut ship_query: Query<
+        (&mut Health, &mut CollisionDamage, Entity),
+        (With<Spaceship>, Without<Asteroid>),
+    >,
+    mut asteroid_query: Query<
+        (&mut Health, &mut CollisionDamage, Entity),
+        (With<Asteroid>, Without<Spaceship>),
+    >,
 ) {
-    for &CollisionEvent {
-        entity,
-        collided_entity,
-    } in collision_event_reader.read()
-    {
-        let Ok(mut health) = health_query.get_mut(entity) else {
-            continue;
-        };
-
-        let Ok(collision_damage) = collision_damage_query.get(collided_entity) else {
-            continue;
-        };
-
-        health.value -= collision_damage.amount;
+    for (mut ship_health, mut ship_collision_damage, ship) in ship_query.iter_mut() {
+        for (mut asteroid_health, mut asteroid_collision_damage, asteroid) in
+            asteroid_query.iter_mut()
+        {
+            if let Some(_contact_pair) = rapier_context.contact_pair(ship, asteroid) {
+                let collision_force = 1.0;
+                let collision_damage = collision_force * 0.1;
+                ship_health.value -= collision_damage;
+                ship_collision_damage.amount += collision_damage;
+                asteroid_health.value -= collision_damage;
+                asteroid_collision_damage.amount += collision_damage;
+            }
+        }
     }
 }

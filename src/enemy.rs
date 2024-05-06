@@ -1,18 +1,12 @@
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 use std::ops::Range;
 
 use crate::{
-    asset_loader::SceneAssets,
-    asteroids::get_random_position_around,
-    behaviors::get_random_walk_type,
-    collision_detection::{Collider, CollisionDamage},
-    debug::DebugEntity,
-    health::Health,
-    movement::{Acceleration, Mass, MovingObjectBundle, Velocity},
-    schedule::InGameSet,
-    spaceship::Spaceship,
+    asset_loader::SceneAssets, asteroids::get_random_position_around,
+    behaviors::get_random_walk_type, collision_detection::CollisionDamage, debug::DebugEntity,
+    health::Health, schedule::InGameSet, spaceship::Spaceship,
 };
-
 #[derive(Component)]
 pub struct Enemy;
 
@@ -67,22 +61,25 @@ fn spawn_enemies(
         let (x, z) = get_random_position_around(player_pos, ENEMY_SPAWN_RANGE);
         let translation = Vec3::new(x, 0.0, z);
         commands.spawn((
-            MovingObjectBundle {
-                mass: Mass::new(ENEMY_MASS),
-                velocity: Velocity::new(Vec3::ZERO),
-                acceleration: Acceleration::new(Vec3::ZERO),
-                collider: Collider::new(1.0),
-                model: SceneBundle {
-                    scene: scene_assets.aliens.clone(),
-                    transform: Transform::from_translation(translation).with_scale(ENEMY_SCALE),
-                    ..default()
-                },
+            SceneBundle {
+                scene: scene_assets.aliens.clone(),
+                transform: Transform::from_translation(translation).with_scale(ENEMY_SCALE),
+                ..default()
             },
+            Collider::cuboid(
+                ENEMY_SCALE.x / 2.0,
+                ENEMY_SCALE.y / 2.0,
+                ENEMY_SCALE.z / 2.0,
+            ),
+            ColliderMassProperties::Density(ENEMY_MASS),
+            Velocity::default(),
             Enemy,
             Health::new(ENEMY_HEALTH),
             CollisionDamage::new(ENEMY_COLLISION_DAMAGE),
+            ExternalForce::default(),
             get_random_walk_type(),
             DebugEntity,
+            RigidBody::Dynamic,
         ));
     });
 }

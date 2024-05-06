@@ -1,24 +1,24 @@
 use bevy::input::keyboard::KeyCode;
 use bevy::input::ButtonInput;
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
 use crate::asset_loader::SceneAssets;
-use crate::collision_detection::{Collider, CollisionDamage};
+use crate::collision_detection::CollisionDamage;
 use crate::debug::DebugEntity;
 use crate::health::Health;
-use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0.0, 0.0, -20.0);
 const SPACESHIP_SCALE: Vec3 = Vec3::splat(0.5);
-const SPACESHIP_SPEED: f32 = 0.25;
-const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
+const SPACESHIP_SPEED: f32 = 10.0;
+const SPACESHIP_ROTATION_SPEED: f32 = 10.0;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
 const SPACESHIP_HEALTH: f32 = 100.0;
 const SPACESHIP_COLLISION_DAMAGE: f32 = 100.0;
 const SPACESHIP_RADIUS: f32 = 1.0;
-const SPACESHIP_MASS: f32 = 1.0;
+const SPACESHIP_MASS: f32 = 0.1;
 const MISSILE_SPEED: f32 = 50.0;
 const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.;
 const MISSILE_HEALTH: f32 = 1.0;
@@ -63,18 +63,20 @@ impl Plugin for SpaceshipPlugin {
 
 fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     commands.spawn((
-        MovingObjectBundle {
-            mass: Mass::new(SPACESHIP_MASS),
-            velocity: Velocity::new(Vec3::ZERO),
-            acceleration: Acceleration::new(Vec3::ZERO),
-            collider: Collider::new(SPACESHIP_RADIUS),
-            model: SceneBundle {
-                scene: scene_assets.spaceship.clone(),
-                transform: Transform::from_translation(STARTING_TRANSLATION)
-                    .with_scale(SPACESHIP_SCALE),
-                ..default()
-            },
+        SceneBundle {
+            scene: scene_assets.spaceship.clone(),
+            transform: Transform::from_translation(STARTING_TRANSLATION)
+                .with_scale(SPACESHIP_SCALE),
+            ..default()
         },
+        Collider::cuboid(
+            SPACESHIP_RADIUS * 2.,
+            SPACESHIP_RADIUS * 2.,
+            SPACESHIP_RADIUS * 2.,
+        ),
+        ColliderMassProperties::Density(SPACESHIP_MASS),
+        Velocity::default(),
+        ExternalForce::default(),
         Spaceship,
         Health::new(SPACESHIP_HEALTH),
         CollisionDamage::new(SPACESHIP_COLLISION_DAMAGE),
@@ -82,15 +84,17 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             timer: Timer::from_seconds(MISSILE_FIRE_DELAY, TimerMode::Once),
         },
         DebugEntity,
+        RigidBody::Dynamic,
+        ActiveEvents::COLLISION_EVENTS,
     ));
 }
 
 fn spaceship_movement_controls(
-    mut query: Query<(&mut Transform, &mut Velocity), With<Spaceship>>,
+    mut query: Query<(&Transform, Entity), With<Spaceship>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
+    mut commands: Commands,
 ) {
-    let Ok((mut transform, mut velocity)) = query.get_single_mut() else {
+    let Ok((transform, entity)) = query.get_single_mut() else {
         return;
     };
     let mut rotation = 0.0;
@@ -98,9 +102,9 @@ fn spaceship_movement_controls(
     let mut movement = 0.0;
 
     if keyboard_input.pressed(KeyCode::KeyA) {
-        rotation = SPACESHIP_ROTATION_SPEED * time.delta_seconds();
+        rotation = SPACESHIP_ROTATION_SPEED;
     } else if keyboard_input.pressed(KeyCode::KeyD) {
-        rotation = -SPACESHIP_ROTATION_SPEED * time.delta_seconds();
+        rotation = -SPACESHIP_ROTATION_SPEED;
     }
 
     if keyboard_input.pressed(KeyCode::KeyS) {
@@ -110,17 +114,19 @@ fn spaceship_movement_controls(
     }
 
     if keyboard_input.pressed(KeyCode::ShiftLeft) {
-        roll = SPACESHIP_ROLL_SPEED * time.delta_seconds();
+        roll = SPACESHIP_ROLL_SPEED;
     } else if keyboard_input.pressed(KeyCode::ControlLeft) {
-        roll = -SPACESHIP_ROLL_SPEED * time.delta_seconds();
+        roll = -SPACESHIP_ROLL_SPEED;
     }
 
-    transform.rotate_y(rotation);
-
-    transform.rotate_local_z(roll);
-
-    // Update the spaceship's velocity based on the new direction
-    velocity.value += -transform.forward() * movement; // Negate the forward vector to move in the direction the spaceship is facing
+    commands.entity(entity).insert(ExternalForce {
+        force: -transform.forward() * movement,
+        torque: Vec3 {
+            x: 0.0,
+            y: rotation,
+            z: roll,
+        },
+    });
 }
 
 fn spaceship_weapon_controls(
@@ -136,23 +142,24 @@ fn spaceship_weapon_controls(
     fire_rate.timer.tick(time.delta());
     if keyboard_input.pressed(KeyCode::Space) && fire_rate.timer.finished() {
         commands.spawn((
-            MovingObjectBundle {
-                mass: Mass::new(MISSILE_MASS),
-                velocity: Velocity::new(-transform.forward() * MISSILE_SPEED),
-                acceleration: Acceleration::new(Vec3::ZERO),
-                collider: Collider::new(MISSILE_RADIUS),
-                model: SceneBundle {
-                    scene: scene_assets.missiles.clone(),
-                    transform: Transform::from_translation(
-                        transform.translation + -transform.forward() * MISSILE_FORWARD_SPAWN_SCALAR,
-                    ),
-                    ..default()
-                },
+            SceneBundle {
+                scene: scene_assets.missiles.clone(),
+                transform: Transform::from_translation(
+                    transform.translation + -transform.forward() * MISSILE_FORWARD_SPAWN_SCALAR,
+                ),
+                ..default()
+            },
+            Collider::ball(MISSILE_RADIUS),
+            ColliderMassProperties::Density(MISSILE_MASS),
+            Velocity {
+                linvel: -transform.forward() * MISSILE_SPEED,
+                angvel: Vec3::ZERO,
             },
             SpaceshipMissile,
             Health::new(MISSILE_HEALTH),
             CollisionDamage::new(MISSILE_COLLISION_DAMAGE),
             DebugEntity,
+            RigidBody::Dynamic,
         ));
         fire_rate.timer.reset();
     }

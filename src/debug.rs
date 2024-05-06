@@ -1,10 +1,7 @@
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
-use crate::{
-    collision_detection::Collider,
-    movement::{Acceleration, Velocity},
-    schedule::InGameSet,
-};
+use crate::schedule::InGameSet;
 
 #[derive(Component, Debug)]
 pub struct DebugEntity;
@@ -15,38 +12,26 @@ impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (draw_colliders, draw_kinematics)
-                .chain()
-                .after(InGameSet::EntityUpdates),
+            (draw_kinematics).chain().after(InGameSet::EntityUpdates),
         )
         .add_systems(Update, update_config);
     }
 }
 
-fn draw_colliders(mut gizmos: Gizmos, query: Query<(&Collider, &Transform), With<DebugEntity>>) {
-    for (collider, transform) in query.iter() {
-        gizmos.sphere(
-            transform.translation,
-            Quat::IDENTITY,
-            collider.radius,
-            Color::WHITE,
-        );
-    }
-}
-
 fn draw_kinematics(
     mut gizmos: Gizmos,
-    query: Query<(&Transform, &Velocity, &Acceleration), With<DebugEntity>>,
+    query: Query<(&Transform, &Velocity, &ExternalForce), With<DebugEntity>>,
 ) {
-    for (transform, velocity, acceleration) in query.iter() {
+    for (transform, velocity, ext_force) in query.iter() {
+        let acceleration: Vec3 = ext_force.force / 1.; // mass_prop.mass;
         gizmos.arrow(
             transform.translation,
-            transform.translation + velocity.value,
+            transform.translation + velocity.linvel,
             Color::WHITE,
         );
         gizmos.arrow(
             transform.translation,
-            transform.translation + acceleration.value,
+            transform.translation + acceleration,
             Color::RED,
         );
     }

@@ -1,13 +1,14 @@
 use bevy::prelude::*;
+use bevy_rapier3d::dynamics::ExternalForce;
 use noise::{NoiseFn, Perlin};
 use rand::distributions::{Distribution, Uniform};
 use rand::{distributions::Standard, Rng};
 use rand_distr::Normal;
 
+use crate::schedule::InGameSet;
 use crate::spaceship::Spaceship;
-use crate::{movement::Acceleration, schedule::InGameSet};
 
-const SEEK_SPEED: f32 = 1.;
+const SEEK_SPEED: f32 = 0.25;
 
 pub struct BehaviorsPlugin;
 
@@ -20,25 +21,25 @@ pub enum WalkType {
 }
 
 impl WalkType {
-    pub fn walk(&self, acceleration: &mut Acceleration, transform: &Transform) {
+    pub fn walk(&self, ext_force: &mut ExternalForce, transform: &Transform) {
         match self {
             WalkType::Random => {
                 let mut rng = rand::thread_rng();
                 let dist = Uniform::new(-1.0, 1.0);
                 let (x, z) = (rng.sample(dist), rng.sample(dist));
-                acceleration.value += Vec3::new(x, 0., z);
+                ext_force.force += Vec3::new(x, 0., z);
             }
             WalkType::Gaussian => {
                 let distribution = Standard;
                 let mut rng = rand::thread_rng();
                 let (x, z) = (distribution.sample(&mut rng), distribution.sample(&mut rng));
-                acceleration.value += Vec3::new(x, 0., z);
+                ext_force.force += Vec3::new(x, 0., z);
             }
             WalkType::Normal => {
                 let distribution = Normal::new(0.0, 0.5).unwrap();
                 let mut rng = rand::thread_rng();
                 let (x, z) = (distribution.sample(&mut rng), distribution.sample(&mut rng));
-                acceleration.value += Vec3::new(x, 0., z);
+                ext_force.force += Vec3::new(x, 0., z);
             }
             WalkType::Perlin => {
                 let mut rng = rand::thread_rng();
@@ -48,7 +49,7 @@ impl WalkType {
                     perlin.get([transform.translation.x as f64, 0., 0.]),
                     perlin.get([0., 0., transform.translation.z as f64]),
                 );
-                acceleration.value += Vec3::new(x as f32, 0., z as f32);
+                ext_force.force += Vec3::new(x as f32, 0., z as f32);
             }
         }
     }
@@ -63,22 +64,22 @@ impl Plugin for BehaviorsPlugin {
     }
 }
 
-fn handle_walks(mut walker_query: Query<(&Transform, &mut Acceleration, &WalkType)>) {
-    for (transform, mut acceleration, walk_type) in walker_query.iter_mut() {
-        walk_type.walk(&mut acceleration, transform);
+fn handle_walks(mut walker_query: Query<(&Transform, &mut ExternalForce, &WalkType)>) {
+    for (transform, mut ext_force, walk_type) in walker_query.iter_mut() {
+        walk_type.walk(&mut ext_force, transform);
     }
 }
 
 fn handle_seek_player(
-    mut walker_query: Query<(&Transform, &mut Acceleration), With<WalkType>>,
+    mut walker_query: Query<(&Transform, &mut ExternalForce), With<WalkType>>,
     player_query: Query<&Transform, With<Spaceship>>,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
-    for (transform, mut acceleration) in walker_query.iter_mut() {
+    for (transform, mut ext_force) in walker_query.iter_mut() {
         let direction = player_transform.translation - transform.translation;
-        acceleration.value += direction.normalize() * SEEK_SPEED;
+        ext_force.force += direction.normalize() * SEEK_SPEED;
     }
 }
 
