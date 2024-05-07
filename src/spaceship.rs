@@ -90,11 +90,11 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
 }
 
 fn spaceship_movement_controls(
-    mut query: Query<(&Transform, Entity), With<Spaceship>>,
+    mut query: Query<(&mut Transform, Entity), With<Spaceship>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
 ) {
-    let Ok((transform, entity)) = query.get_single_mut() else {
+    let Ok((mut transform, entity)) = query.get_single_mut() else {
         return;
     };
     let mut rotation = 0.0;
@@ -127,6 +127,11 @@ fn spaceship_movement_controls(
             z: roll,
         },
     });
+
+    // lock to y=0 plane
+    transform.translation.y = 0.0;
+    transform.rotation.z = 0.0;
+    transform.rotation.x = 0.0;
 }
 
 fn spaceship_weapon_controls(
