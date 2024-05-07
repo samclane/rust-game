@@ -4,13 +4,13 @@ use bevy::{
     prelude::*,
     winit::WinitWindows,
 };
+use bevy_rapier3d::prelude::*;
 use jumpy::{
     asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, background::BackgroundPlugin,
     behaviors::BehaviorsPlugin, camera::CameraPlugin,
     collision_detection::CollisionDetectionPlugin, debug::DebugPlugin, despawn::DespawnPlugin,
-    enemy::EnemyPlugin, menus::MenusPlugin, movement::MovementPlugin, planet::PlanetPlugin,
-    schedule::SchedulePlugin, spaceship::SpaceshipPlugin, splash::SplashPlugin, stars::StarsPlugin,
-    state::StatePlugin,
+    enemy::EnemyPlugin, menus::MenusPlugin, planet::PlanetPlugin, schedule::SchedulePlugin,
+    spaceship::SpaceshipPlugin, splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
 };
 use winit::window::Icon;
 
@@ -37,9 +37,14 @@ fn main() {
         }))
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
+        .insert_resource(RapierConfiguration {
+            gravity: Vec3::ZERO,
+            ..default()
+        })
         // User configured plugins
         .add_plugins(AssetLoaderPlugin)
-        .add_plugins(MovementPlugin)
         .add_plugins(SpaceshipPlugin)
         .add_plugins(AsteroidPlugin)
         .add_plugins(PlanetPlugin)

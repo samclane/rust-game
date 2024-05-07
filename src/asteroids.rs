@@ -2,19 +2,18 @@ use std::f32::consts::PI;
 use std::ops::Range;
 
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 use rand::Rng;
 
 use crate::asset_loader::SceneAssets;
-use crate::collision_detection::{Collider, CollisionDamage};
+use crate::collision_detection::CollisionDamage;
 use crate::debug::DebugEntity;
 use crate::health::Health;
-use crate::movement::{Acceleration, Mass, MovingObjectBundle, Velocity};
 use crate::schedule::InGameSet;
 use crate::spaceship::Spaceship;
 
 const MASS_SCALAR: f32 = 3.0;
 const VELOCITY_SCALAR: f32 = 5.0;
-const ACCELERATION_SCALAR: f32 = 1.0;
 const SPAWN_TIME_SECONDS: f32 = 1.0;
 const ROTATION_SPEED: f32 = 2.5;
 const HEALTH: f32 = 80.0;
@@ -40,7 +39,7 @@ impl Plugin for AsteroidPlugin {
         })
         .add_systems(
             Update,
-            ((spawn_asteroids, rotate_asteroids).in_set(InGameSet::EntityUpdates),),
+            ((spawn_asteroids).in_set(InGameSet::EntityUpdates),),
         );
     }
 }
@@ -70,31 +69,26 @@ fn spawn_asteroids(
         let translation = Vec3::new(x, 0.0, z);
 
         let velocity = get_random_unit_vector() * VELOCITY_SCALAR;
-        let acceleration = get_random_unit_vector() * ACCELERATION_SCALAR;
 
         commands.spawn((
-            MovingObjectBundle {
-                mass: Mass::new(MASS_SCALAR),
-                velocity: Velocity::new(velocity),
-                acceleration: Acceleration::new(acceleration),
-                collider: Collider::new(1.0),
-                model: SceneBundle {
-                    scene: scene_assets.asteroids.clone(),
-                    transform: Transform::from_translation(translation).with_scale(SCALE),
-                    ..default()
-                },
+            SceneBundle {
+                scene: scene_assets.asteroids.clone(),
+                transform: Transform::from_translation(translation).with_scale(SCALE),
+                ..default()
+            },
+            Collider::ball(1.0),
+            ColliderMassProperties::Density(MASS_SCALAR),
+            Velocity {
+                linvel: velocity,
+                angvel: Vec3::splat(ROTATION_SPEED),
             },
             Asteroid,
             Health::new(HEALTH),
             CollisionDamage::new(COLLISION_DAMAGE),
             DebugEntity,
+            RigidBody::Dynamic,
+            ExternalForce::default(),
         ));
-    }
-}
-
-fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
-    for mut transform in query.iter_mut() {
-        transform.rotate(Quat::from_rotation_y(ROTATION_SPEED * time.delta_seconds()));
     }
 }
 

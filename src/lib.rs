@@ -9,7 +9,6 @@ pub mod despawn;
 pub mod enemy;
 pub mod health;
 pub mod menus;
-pub mod movement;
 pub mod planet;
 pub mod schedule;
 pub mod spaceship;

@@ -1,20 +1,17 @@
 use std::ops::Range;
 
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 use rand::Rng;
 
 use crate::{
-    asset_loader::SceneAssets,
-    collision_detection::{Collider, CollisionDamage},
-    debug::DebugEntity,
-    health::Health,
-    movement::{Acceleration, Mass, StaticObjectBundle},
-    schedule::InGameSet,
-    state::GameState,
+    asset_loader::SceneAssets, collision_detection::CollisionDamage, debug::DebugEntity,
+    health::Health, state::GameState,
 };
 
+pub const G: f32 = 6.67430e-11;
 const NUM_PLANETS: usize = 20;
-const PLANET_COLLISION_DAMAGE: f32 = 10.0;
+const PLANET_COLLISION_DAMAGE: f32 = 1000.0;
 const PLANET_RANGE_MASS: Range<f32> = 5_000.0..20_000.0;
 const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
 const SPAWN_RANGE_Z: Range<f32> = -500.0..500.0;
@@ -31,10 +28,7 @@ impl Plugin for PlanetPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PostStartup, spawn_planets)
             .add_systems(OnEnter(GameState::GameOver), spawn_planets)
-            .add_systems(
-                Update,
-                (attract_objects_to_planets, rotate_planets).in_set(InGameSet::EntityUpdates),
-            );
+            .add_systems(Update, attract_objects);
     }
 }
 
@@ -61,8 +55,8 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             continue;
         }
 
-        let mass = Mass::new(rng.gen_range(PLANET_RANGE_MASS));
-        let collider = Collider::new(transform.scale.x * 2.);
+        let mass = ColliderMassProperties::Density(rng.gen_range(PLANET_RANGE_MASS));
+        let collider = Collider::ball(2.0); // Don't know why this is 2.0
         let model = SceneBundle {
             scene: scene_assets.planets.clone(),
             transform,
@@ -70,37 +64,38 @@ fn spawn_planets(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         };
 
         commands.spawn((
-            StaticObjectBundle {
-                mass,
-                model,
-                collider,
+            mass,
+            model,
+            collider,
+            Velocity {
+                angvel: Vec3::splat(ROTATION_SPEED),
+                linvel: Vec3::ZERO,
             },
             Planet,
             CollisionDamage::new(PLANET_COLLISION_DAMAGE),
             Health::new(HEALTH),
             DebugEntity,
+            RigidBody::Dynamic,
         ));
 
         planets.push(transform);
     }
 }
 
-fn attract_objects_to_planets(
-    query: Query<(&Transform, &Mass), With<Planet>>,
-    mut moving_query: Query<(&mut Acceleration, &Transform, &Mass), Without<Planet>>,
+fn attract_objects(
+    mut planet_query: Query<(&Transform, &Collider), With<Planet>>,
+    mut rigid_body_query: Query<(&Transform, &Collider, &mut ExternalForce), Without<Planet>>,
 ) {
-    for (planet_transform, planet_mass) in query.iter() {
-        for (mut acceleration, transform, mass) in moving_query.iter_mut() {
-            let direction = planet_transform.translation - transform.translation;
-            let distance: f32 = direction.length();
-            let force = (planet_mass.value * mass.value) / (distance.powi(2) + f32::EPSILON);
-            acceleration.value += direction.normalize() * force;
+    for (planet_transform, planet_collider) in planet_query.iter_mut() {
+        for (transform, entity_collider, mut ext_force) in rigid_body_query.iter_mut() {
+            let distance = (planet_transform.translation - transform.translation).length();
+            let mut force = (planet_transform.translation - transform.translation).normalize()
+                * (planet_collider.raw.mass_properties(10000000.0).mass()
+                    * entity_collider.raw.mass_properties(1.0).mass()
+                    / distance.powi(2))
+                * G;
+            force.y = 0.0;
+            ext_force.force += force;
         }
-    }
-}
-
-fn rotate_planets(mut query: Query<&mut Transform, With<Planet>>, time: Res<Time>) {
-    for mut transform in query.iter_mut() {
-        transform.rotate(Quat::from_rotation_y(ROTATION_SPEED * time.delta_seconds()));
     }
 }
