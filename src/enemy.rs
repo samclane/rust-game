@@ -19,8 +19,8 @@ pub struct EnemyPlugin;
 
 const NUM_ENEMIES: usize = 10;
 const ENEMY_MASS: f32 = 1.0;
-// const ENEMY_SPAWN_RANGE: Range<f32> = 100.0..500.0;
-const ENEMY_SPAWN_RANGE: Range<f32> = 10.0..50.0;
+const ENEMY_SPAWN_RANGE: Range<f32> = 100.0..500.0;
+// const ENEMY_SPAWN_RANGE: Range<f32> = 10.0..50.0;
 const ENEMY_HEALTH: f32 = 80.0;
 const ENEMY_COLLISION_DAMAGE: f32 = 3.5;
 const SPAWN_TIME_SECONDS: f32 = 0.5;

@@ -11,7 +11,7 @@ use crate::{
 
 pub const G: f32 = 6.67430e-11;
 const NUM_PLANETS: usize = 20;
-const PLANET_COLLISION_DAMAGE: f32 = 1.0;
+const PLANET_COLLISION_DAMAGE: f32 = 1000.0;
 const PLANET_RANGE_MASS: Range<f32> = 5_000.0..20_000.0;
 const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
 const SPAWN_RANGE_Z: Range<f32> = -500.0..500.0;

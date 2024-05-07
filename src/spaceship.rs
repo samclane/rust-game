@@ -26,6 +26,7 @@ const MISSILE_COLLISION_DAMAGE: f32 = 0.5;
 const MISSILE_FIRE_DELAY: f32 = 0.2;
 const MISSILE_MASS: f32 = 1.0;
 const MISSILE_RADIUS: f32 = 1.0;
+const MISSILE_LENGTH: f32 = 2.0;
 
 #[derive(Component, Debug)]
 pub struct Spaceship;
@@ -85,7 +86,6 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         },
         DebugEntity,
         RigidBody::Dynamic,
-        ActiveEvents::COLLISION_EVENTS,
     ));
 }
 
@@ -149,7 +149,7 @@ fn spaceship_weapon_controls(
                 ),
                 ..default()
             },
-            Collider::ball(MISSILE_RADIUS),
+            Collider::capsule_z(MISSILE_LENGTH, MISSILE_RADIUS),
             ColliderMassProperties::Density(MISSILE_MASS),
             Velocity {
                 linvel: -transform.forward() * MISSILE_SPEED,
@@ -160,6 +160,7 @@ fn spaceship_weapon_controls(
             CollisionDamage::new(MISSILE_COLLISION_DAMAGE),
             DebugEntity,
             RigidBody::Dynamic,
+            ExternalForce::default(),
         ));
         fire_rate.timer.reset();
     }
