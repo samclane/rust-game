@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
-use crate::{asteroids::Asteroid, health::Health, schedule::InGameSet, spaceship::Spaceship};
+use crate::{health::Health, schedule::InGameSet};
 
 #[derive(Component, Debug)]
 pub struct CollisionDamage {
@@ -41,28 +41,14 @@ fn display_events(
     }
 }
 
-pub fn apply_collision_damage(
+fn apply_collision_damage(
     rapier_context: Res<RapierContext>,
-    mut ship_query: Query<
-        (&mut Health, &mut CollisionDamage, Entity),
-        (With<Spaceship>, Without<Asteroid>),
-    >,
-    mut asteroid_query: Query<
-        (&mut Health, &mut CollisionDamage, Entity),
-        (With<Asteroid>, Without<Spaceship>),
-    >,
+    mut query: Query<(&mut Health, Entity, &CollisionDamage)>,
 ) {
-    for (mut ship_health, mut ship_collision_damage, ship) in ship_query.iter_mut() {
-        for (mut asteroid_health, mut asteroid_collision_damage, asteroid) in
-            asteroid_query.iter_mut()
-        {
-            if let Some(_contact_pair) = rapier_context.contact_pair(ship, asteroid) {
-                let collision_force = 1.0;
-                let collision_damage = collision_force * 0.1;
-                ship_health.value -= collision_damage;
-                ship_collision_damage.amount += collision_damage;
-                asteroid_health.value -= collision_damage;
-                asteroid_collision_damage.amount += collision_damage;
+    for (mut health, entity, collision_damage) in query.iter_mut() {
+        for contact_pair_group in rapier_context.contact_pairs_with(entity) {
+            if contact_pair_group.has_any_active_contacts() {
+                health.value -= collision_damage.amount;
             }
         }
     }
