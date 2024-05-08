@@ -37,7 +37,6 @@ fn spawn_camera(mut commands: Commands) {
         BloomSettings::NATURAL,
         PostProcessSettings {
             intensity: 0.002,
-            ..default()
         },
     ));
 }
