@@ -4,7 +4,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::spaceship::Spaceship;
+use crate::{post_processing::PostProcessSettings, spaceship::Spaceship};
 
 const CAMERA_DISTANCE_INIT: f32 = 120.0;
 const CAMERA_LERP_SPEED: f32 = 2.;
@@ -27,10 +27,7 @@ impl Plugin for CameraPlugin {
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Camera3dBundle {
-            camera: Camera {
-                hdr: true,
-                ..default()
-            },
+            camera: Camera::default(),
             tonemapping: Tonemapping::TonyMcMapface,
             transform: Transform::from_xyz(0.0, CAMERA_DISTANCE_INIT, 0.0)
                 .looking_at(Vec3::ZERO, Vec3::Z),
@@ -38,6 +35,10 @@ fn spawn_camera(mut commands: Commands) {
         },
         MainCamera,
         BloomSettings::NATURAL,
+        PostProcessSettings {
+            intensity: 0.002,
+            ..default()
+        },
     ));
 }
 

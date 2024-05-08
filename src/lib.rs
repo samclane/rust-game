@@ -10,6 +10,7 @@ pub mod enemy;
 pub mod health;
 pub mod menus;
 pub mod planet;
+pub mod post_processing;
 pub mod schedule;
 pub mod spaceship;
 pub mod splash;

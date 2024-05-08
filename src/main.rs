@@ -9,8 +9,9 @@ use jumpy::{
     asset_loader::AssetLoaderPlugin, asteroids::AsteroidPlugin, background::BackgroundPlugin,
     behaviors::BehaviorsPlugin, camera::CameraPlugin,
     collision_detection::CollisionDetectionPlugin, debug::DebugPlugin, despawn::DespawnPlugin,
-    enemy::EnemyPlugin, menus::MenusPlugin, planet::PlanetPlugin, schedule::SchedulePlugin,
-    spaceship::SpaceshipPlugin, splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
+    enemy::EnemyPlugin, menus::MenusPlugin, planet::PlanetPlugin,
+    post_processing::PostProcessPlugin, schedule::SchedulePlugin, spaceship::SpaceshipPlugin,
+    splash::SplashPlugin, stars::StarsPlugin, state::StatePlugin,
 };
 use winit::window::Icon;
 
@@ -60,6 +61,7 @@ fn main() {
         .add_plugins(BehaviorsPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(BackgroundPlugin)
+        .add_plugins(PostProcessPlugin)
         .run();
 }
 
