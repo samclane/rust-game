@@ -1,10 +1,10 @@
 use bevy::{
-    core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping},
+    core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping, Skybox},
     input::mouse::MouseWheel,
     prelude::*,
 };
 
-use crate::{post_processing::PostProcessSettings, spaceship::Spaceship};
+use crate::{background::build_image, post_processing::PostProcessSettings, spaceship::Spaceship};
 
 const CAMERA_DISTANCE_INIT: f32 = 120.0;
 const CAMERA_LERP_SPEED: f32 = 2.;
@@ -24,7 +24,7 @@ impl Plugin for CameraPlugin {
     }
 }
 
-fn spawn_camera(mut commands: Commands) {
+fn spawn_camera(mut commands: Commands, images: ResMut<Assets<Image>>) {
     commands.spawn((
         Camera3dBundle {
             camera: Camera::default(),
@@ -36,6 +36,10 @@ fn spawn_camera(mut commands: Commands) {
         MainCamera,
         BloomSettings::NATURAL,
         PostProcessSettings { intensity: 0.002 },
+        Skybox {
+            image: build_image(images).clone(),
+            brightness: 1000.0,
+        },
     ));
 }
 

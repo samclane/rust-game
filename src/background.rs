@@ -2,42 +2,28 @@ use bevy::{
     prelude::*,
     render::render_resource::{
         Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+        TextureViewDescriptor, TextureViewDimension,
     },
 };
 use noise::{
     core::worley::ReturnType,
-    utils::{ColorGradient, NoiseMapBuilder, PlaneMapBuilder},
+    utils::{ColorGradient, NoiseMapBuilder, SphereMapBuilder},
     Add, Cache, Fbm, MultiFractal, NoiseFn, Perlin, Worley,
 };
 use rand::Rng;
 
 const WIDTH: u32 = 1000;
-const HEIGHT: u32 = 1000;
+const HEIGHT: u32 = 6000;
 const NEBULA_FREQUENCY: f64 = 2.0;
 const NEBULA_OCATAVES: usize = 5;
 const STAR_FREQUENCY: f64 = 1.0;
 const NEBULA_LACUNARITY: f64 = 3.0;
 const NEBULA_PERSISTENCE: f64 = 0.6;
-const NOISE_MAP_X_BOUNDS: (f64, f64) = (-2.0, 2.0);
-const NOISE_MAP_Y_BOUNDS: (f64, f64) = (-2.0, 2.0);
-const Y_OFFSET: f32 = -250.0;
 
 #[derive(Component)]
 pub struct Background;
-pub struct BackgroundPlugin;
 
-impl Plugin for BackgroundPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, render_background);
-    }
-}
-
-fn render_background(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut images: ResMut<Assets<Image>>,
-) {
+pub fn build_image(mut images: ResMut<Assets<Image>>) -> Handle<Image> {
     let size = Extent3d {
         width: WIDTH,
         height: HEIGHT,
@@ -79,10 +65,11 @@ fn render_background(
         Cache::new(nebula)
     }
     let nebula_noise = nebula_noise();
-    let noise_map = PlaneMapBuilder::new(&nebula_noise)
+
+    let noise_map = SphereMapBuilder::new(&nebula_noise)
+        .set_latitude_bounds(-90.0, 90.0)
+        .set_longitude_bounds(-180.0, 180.0)
         .set_size(size.width as usize, size.height as usize)
-        .set_x_bounds(NOISE_MAP_X_BOUNDS.0, NOISE_MAP_X_BOUNDS.1)
-        .set_y_bounds(NOISE_MAP_Y_BOUNDS.0, NOISE_MAP_Y_BOUNDS.1)
         .build();
     let nebula_gradient = ColorGradient::new()
         .clear_gradient()
@@ -104,24 +91,12 @@ fn render_background(
             image.data[index..index + 4].copy_from_slice(&color);
         }
     }
-
-    let image_handle = images.add(image);
-
-    let plane_handle = meshes.add(Plane3d::default().mesh().size(1000., 1000.));
-    let plane_material_handle = materials.add(StandardMaterial {
-        base_color_texture: Some(image_handle),
-        reflectance: 0.0,
-        unlit: true,
+    image.reinterpret_stacked_2d_as_array(
+        image.texture_descriptor.size.height / image.texture_descriptor.size.width,
+    );
+    image.texture_view_descriptor = Some(TextureViewDescriptor {
+        dimension: Some(TextureViewDimension::Cube),
         ..default()
     });
-
-    commands.spawn((
-        PbrBundle {
-            mesh: plane_handle,
-            material: plane_material_handle,
-            transform: Transform::from_translation(Vec3::new(0.0, Y_OFFSET, 0.0)),
-            ..default()
-        },
-        Background,
-    ));
+    images.add(image)
 }
