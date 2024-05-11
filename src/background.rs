@@ -67,7 +67,7 @@ pub fn build_image(mut images: ResMut<Assets<Image>>) -> Handle<Image> {
     let nebula_noise = nebula_noise();
 
     let noise_map = SphereMapBuilder::new(&nebula_noise)
-        .set_latitude_bounds(-90.0, 90.0)
+        .set_latitude_bounds(-360.0, 360.0)
         .set_longitude_bounds(-180.0, 180.0)
         .set_size(size.width as usize, size.height as usize)
         .build();
