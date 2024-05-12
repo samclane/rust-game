@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use bevy::{
     prelude::*,
     render::render_resource::{
@@ -7,7 +9,7 @@ use bevy::{
 };
 use noise::{
     core::worley::ReturnType,
-    utils::{ColorGradient, NoiseMapBuilder, SphereMapBuilder},
+    utils::{ColorGradient, NoiseMapBuilder, PlaneMapBuilder},
     Add, Cache, Fbm, MultiFractal, NoiseFn, Perlin, Worley,
 };
 use rand::Rng;
@@ -19,6 +21,8 @@ const NEBULA_OCATAVES: usize = 5;
 const STAR_FREQUENCY: f64 = 1.0;
 const NEBULA_LACUNARITY: f64 = 3.0;
 const NEBULA_PERSISTENCE: f64 = 0.6;
+const X_RANGE: Range<f64> = -5.0..5.0;
+const Y_RANGE: Range<f64> = -30.0..30.0;
 
 #[derive(Component)]
 pub struct Background;
@@ -66,9 +70,9 @@ pub fn build_image(mut images: ResMut<Assets<Image>>) -> Handle<Image> {
     }
     let nebula_noise = nebula_noise();
 
-    let noise_map = SphereMapBuilder::new(&nebula_noise)
-        .set_latitude_bounds(-360.0, 360.0)
-        .set_longitude_bounds(-180.0, 180.0)
+    let noise_map = PlaneMapBuilder::new(&nebula_noise)
+        .set_x_bounds(X_RANGE.start, X_RANGE.end)
+        .set_y_bounds(Y_RANGE.start, Y_RANGE.end)
         .set_size(size.width as usize, size.height as usize)
         .build();
     let nebula_gradient = ColorGradient::new()
